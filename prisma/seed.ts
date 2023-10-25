@@ -22,7 +22,7 @@ async function main() {
           'https://pbs.twimg.com/profile_images/1587647097670467584/adWRdqQ6_400x400.jpg',
       },
     }),
-    await prisma.users.upsert({
+    prisma.users.upsert({
       where: { email: 'stey@vercel.com' },
       update: {},
       create: {
@@ -30,6 +30,16 @@ async function main() {
         email: 'stey@vercel.com',
         image:
           'https://pbs.twimg.com/profile_images/1506792347840888834/dS-r50Je_400x400.jpg',
+      },
+    }),
+    prisma.users.upsert({
+      where: { email: 'jane@vercel.com' },
+      update: {},
+      create: {
+        name: 'Jane Doe',
+        email: 'jane@vercel.com',
+        image:
+          'https://pbs.twimg.com/profile_images/1234567890123456789/AbCdEfGh_400x400.jpg',
       },
     }),
   ])
