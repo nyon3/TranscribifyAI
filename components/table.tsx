@@ -2,10 +2,16 @@ import prisma from '@/lib/prisma'
 import { timeAgo } from '@/lib/utils'
 import Image from 'next/image'
 import RefreshButton from './refresh-button'
+import UserFileList from './list'
 
 export default async function Table() {
   const startTime = Date.now()
-  const users = await prisma.users.findMany()
+  const users = await prisma.user.findMany({
+    include: {
+      files: true,
+    },
+  })
+
   const duration = Date.now() - startTime
 
   return (
@@ -36,6 +42,12 @@ export default async function Table() {
               <div className="space-y-1">
                 <p className="font-medium leading-none">{user.name}</p>
                 <p className="text-sm text-gray-500">{user.email}</p>
+                <div>
+                <UserFileList />
+              {/* separator */}
+              <div className="border-t border-gray-200 my-4" />
+             
+            </div>
               </div>
             </div>
             <p className="text-sm text-gray-500">{timeAgo(user.createdAt)}</p>

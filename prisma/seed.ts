@@ -33,6 +33,16 @@ async function main() {
       },
     }),
     prisma.users.upsert({
+      where: { email: 'tomoya@vercel.com' },
+      update: {},
+      create: {
+        name: 'Tomoya Tanaka',
+        email: 'tomoya@vercel.com',
+        image:
+          'https://pbs.twimg.com/profile_images/1435507962/tomoya_400x400.jpg',
+      },
+    }),
+    prisma.users.upsert({
       where: { email: 'jane@vercel.com' },
       update: {},
       create: {

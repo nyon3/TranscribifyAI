@@ -1,5 +1,7 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
+import SessionProvider from '../components/SessionProvider'
+import { getServerSession } from 'next-auth'
 
 export const metadata = {
   metadataBase: new URL('https://postgres-prisma.vercel.app'),
@@ -19,9 +21,12 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const session = getServerSession()
   return (
     <html lang="en">
+    <SessionProvider session={session}>
       <body className={inter.variable}>{children}</body>
+      </SessionProvider>
     </html>
   )
 }
