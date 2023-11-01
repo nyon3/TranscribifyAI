@@ -1,5 +1,4 @@
-
-export const transcribeAudio = async (audioURL) => {
+export const transcribeAudio = async (audioURL: string) => {
     const apiUrl = process.env.NEXT_DEVELOP_API_URL || " ";
     const formData = new FormData();
     formData.append('audioUrl', audioURL);
@@ -11,4 +10,3 @@ export const transcribeAudio = async (audioURL) => {
     console.log(data);
     return data.transcription;
 }
-
