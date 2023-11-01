@@ -5,11 +5,25 @@ import prisma from '@/lib/prisma';
 export async function POST(request: Request): Promise<NextResponse> {
   const { searchParams } = new URL(request.url);
   const filename = searchParams.get('filename');
-  const userId = searchParams.get('user_id');
+  if (filename === null) {
+    // Handle the error (either throw or return a response)
+    return NextResponse.json({ error: "filename is required" });
+  }
+  if (!request.body) {
+    return NextResponse.json({ error: "Request body is empty" });
+  }
+
+  const userId = searchParams.get('user_id') ?? undefined;
+  
+  if (!filename || !userId || !request.body) {
+    return NextResponse.json({ error: "Required parameters are missing" });
+  }
+  
   // ⚠️ The below code is for App Router Route Handlers only
   const blob = await put(filename, request.body, {
     access: 'public',
   });
+  
 
   // Here's the code for Pages API Routes:
   // const blob = await put(filename, request, {
