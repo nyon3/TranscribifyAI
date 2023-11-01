@@ -55,9 +55,11 @@ await prisma.file.update({
 
     return NextResponse.json({ transcription: transcribedText });
   } catch (error) {
-    return NextResponse.json({ error: error.toString() });
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.toString() });
+    }
+    return NextResponse.json({ error: "An unknown error occurred" });
   }
-}
 
 async function transcribeAudio(audioURL: string): Promise<string> {
   const response = await fetch(audioURL);
@@ -69,4 +71,4 @@ async function transcribeAudio(audioURL: string): Promise<string> {
   });
 
   return transcriptionResult.text;
-}
+}}
