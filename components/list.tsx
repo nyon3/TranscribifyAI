@@ -4,10 +4,11 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import SelectedFile from './selectedFile';
 
 export default async function userFileList() {
-    const session = getServerSession(authOptions);
+    const session = await getServerSession(authOptions);  // Added await here
     const files = await prisma.file.findMany({
         where: {
-            userId: session?.user?.id,
+            // Using type assertion to inform TypeScript to treat session.user as any type
+            userId: (session?.user as any)?.id,
         },
     });
    
@@ -17,6 +18,5 @@ export default async function userFileList() {
                 <SelectedFile listItems={files}/>
             </ul>
         </div>
-    )
-
+    );
 }

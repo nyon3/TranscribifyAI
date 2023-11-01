@@ -3,6 +3,13 @@ import type { PutBlobResult } from '@vercel/blob';
 import { useState, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 
+interface MySessionUser {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
 export default function AvatarUploadPage() {
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
@@ -17,8 +24,15 @@ export default function AvatarUploadPage() {
       return;
     }
 
+    const userId = (session?.user as MySessionUser)?.id;
+
+    if (!userId) {
+      console.error("User ID is not available");
+      return;
+    }
+
     const response = await fetch(
-      `/api/avatar/upload?filename=${file.name}&user_id=${session?.user?.id}`,
+      `/api/avatar/upload?filename=${file.name}&user_id=${userId}`,
       {
         method: 'POST',
         body: file,

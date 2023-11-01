@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import SessionProvider from '../components/SessionProvider'
 import { getServerSession } from 'next-auth'
 
+
 export const metadata = {
   metadataBase: new URL('https://postgres-prisma.vercel.app'),
   title: 'Vercel Postgres Demo with Prisma',

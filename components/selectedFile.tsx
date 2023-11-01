@@ -1,15 +1,26 @@
 "use client"
-import React, { useState } from "react";
+import React, { useState, ChangeEvent } from "react";
 import deleteFile from "@/lib/deleteFile";
 import {transcribeAudio} from "@/lib/transcription";
 import TranscriptionDisplay from "@/components/transcriptionDisplay";
 import CopyToClipboard from "./CopyToClip";
 
-const SelectedFile = ({ listItems }) => {
+// Explicitly define the type for listItems
+interface ListItem {
+  url: string;
+  name: string;
+}
+
+interface SelectedFileProps {
+  listItems: ListItem[];
+}
+
+
+const SelectedFile: React.FC<SelectedFileProps>  = ({ listItems }) => {
   const [selectedFileUrl, setSelectedFileUrl] = useState('');
   const [transcription, setTranscription] = useState('');
 
-  const handleChange = (event) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>)  => {
     setSelectedFileUrl(event.target.value);
   };
 
