@@ -1,7 +1,6 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
-import SessionProvider from '../components/SessionProvider'
-import { getServerSession } from 'next-auth'
+import NextAuthProvider from '@/components/SessionProvider'
 
 
 export const metadata = {
@@ -22,12 +21,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = getServerSession()
   return (
     <html lang="en">
-    <SessionProvider session={session}>
+    <NextAuthProvider>
       <body className={inter.variable}>{children}</body>
-      </SessionProvider>
+      </NextAuthProvider>
     </html>
   )
 }
