@@ -1,5 +1,7 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
+import NextAuthProvider from '@/components/SessionProvider'
+
 
 export const metadata = {
   metadataBase: new URL('https://postgres-prisma.vercel.app'),
@@ -21,7 +23,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+    <NextAuthProvider>
       <body className={inter.variable}>{children}</body>
+      </NextAuthProvider>
     </html>
   )
 }
