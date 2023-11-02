@@ -25,18 +25,6 @@ export const AudioPlay = ({ audio }: AudioPlayProps) => {
       <audio controls key={audio}>
         <source src={audio} type="audio/mpeg" />
       </audio>
-      <div>
-        {session && (
-          <>
-            {!playing && (
-              <button onClick={handlePlay}>Play</button>
-            )}
-            {playing && (
-              <button onClick={handlePause}>Pause</button>
-            )}
-          </>
-        )}
-      </div>
     </>
   );
 };

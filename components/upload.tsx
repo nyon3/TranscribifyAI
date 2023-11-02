@@ -45,22 +45,24 @@ export default function AvatarUploadPage() {
 
   return (
     <>
-      <h1>Upload Your Audio Data</h1>
-
-      <input
-        name="file"
-        ref={inputFileRef}
-        type="file"
-        required
-        onChange={handleFileChange}
-        accept="audio/*"  
-      />
+      <label className="relative cursor-pointer bg-blue-500 text-white font-bold py-2 px-4 border border-blue-700 rounded">
+            Upload Audio File
+            <input
+                name="file"
+                ref={inputFileRef}
+                type="file"
+                required
+                onChange={handleFileChange}
+                accept="audio/*"  
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+        </label>
       {/* Optionally display the blob URL */}
-      {blob && (
+      {/* {blob && (
         <div>
           Blob url: <a href={blob.url}>{blob.url}</a>
         </div>
-      )}
+      )} */}
     </>
   );
 }
