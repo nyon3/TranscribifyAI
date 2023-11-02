@@ -1,4 +1,5 @@
-// Audio paly button UI component access the audio file from Prisma database and play it.
+// AudioPlayer.tsx 
+
 'use client';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
@@ -21,7 +22,7 @@ export const AudioPlay = ({ audio }: AudioPlayProps) => {
 
   return (
     <>
-      <audio controls>
+      <audio controls key={audio}>
         <source src={audio} type="audio/mpeg" />
       </audio>
       <div>
