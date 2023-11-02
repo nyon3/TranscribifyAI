@@ -62,7 +62,7 @@ const SelectedFile: React.FC<SelectedFileProps> = ({ listItems }) => {
               <div className="flex space-x-2">
                 <button onClick={handleDelete} className="flex items-center space-x-2">
                   <FaTrash className={iconClassName} />
-                  <span>Delete</span>
+                  <span >Delete</span>
                 </button>
                 <button onClick={handleTranscribe} className="flex items-center space-x-2">
                   <FaMicrophone className={iconClassName} />
