@@ -8,20 +8,17 @@ import { LoginButton, LogoutButton } from '../components/button'
 export const dynamic = 'force-dynamic'
 import AuthStatus from '@/components/authStatus'
 import AvatarUploadPage from '@/components/upload'
-
+import AudioFileList from '@/components/AudioFileList'
+import { FileUpload } from '@/components/FileUpload'
 
 export default async function Home() {
 
   
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center">
-     {/* <pre>{JSON.stringify(session, null, 2)}</pre> */}
-
       <LoginButton />
       <LogoutButton />
       <AuthStatus />
-     
-  
     </main>
   )
 }
