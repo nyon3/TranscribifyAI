@@ -3,7 +3,7 @@ import { signIn, signOut } from "next-auth/react"
 
 export const LoginButton = () => {
     return (
-        <button onClick={() => signIn('github', {callbackUrl: '/user/dashboard'})}>Login</button>
+        <button onClick={() => signIn('github', {callbackUrl: '/dashboard'})}>Login</button>
     )   
 }
 
