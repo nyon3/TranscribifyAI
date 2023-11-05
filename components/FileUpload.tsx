@@ -3,6 +3,7 @@ import { put } from '@vercel/blob';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { revalidatePath } from "next/cache";
+import { SubmitButton } from "./submitButton";
 
     // Upload file to database using Prisma and Next.js server actions
     const addAudioFile = async(data:FormData) => {
@@ -53,9 +54,9 @@ export const FileUpload = async () => {
    
     return (
         <div>
-           <form>
+           <form action={addAudioFile}>
             <input type="file" name="file" accept="audio/*" />
-            <button formAction={addAudioFile}>Upload</button>
+             <SubmitButton/>
             </form>
         </div>
     )   
