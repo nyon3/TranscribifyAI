@@ -47,10 +47,7 @@ if (existingTranscribedFile) {
 }
 
 // Update the File record to indicate it has been transcribed
-await prisma.file.update({
-  where: { id: fileRecord.id },
-  data: { transcription: "true" },
-});
+
 
 
     return NextResponse.json({ transcription: transcribedText });

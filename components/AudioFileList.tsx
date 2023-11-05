@@ -1,9 +1,13 @@
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { revalidatePath } from 'next/cache';
+import { deleteFile } from '@/lib/delete';
 import RefreshButton from '@/components/refresh-button';
 import { transcribeFile } from '@/lib/transcribe';
+import ClientList from './ClientComponent';
+import TranscriptionDisplay from './transcriptionDisplay';
+import ServerListItem from './ServeList';
+import { FaTrash, FaFileSignature } from 'react-icons/fa';
 
 export default async function AudioFileList() {
     const session = await getServerSession(authOptions);  // Added await here
@@ -13,34 +17,13 @@ export default async function AudioFileList() {
             userId: (session?.user as any)?.id,
         },
     });
-   
-    // Create a function that will update the user with the given id
-    
-    
-
-
-    const deleteFile = async(data:FormData) => {
-        'use server'
-       const url = data.get('url') as string;
-    await prisma.file.findFirst({
+    const TranscribeData = await prisma.transcribedFile.findMany({
         where: {
-            url: url
-        } 
-    }).then(async (file) => {
-        if (file) {
-            await prisma.file.delete({
-                where: {
-                    id: file.id
-                }
-            });
-        } else {
-            console.log('File not found');
-        }
-    }).catch((error) => {   
-        console.log(error);
+            file: {
+                userId: (session?.user as any)?.id,
+            },
+        },
     });
-    revalidatePath('/');
-    }   
 
     return (
         <div className="bg-white/30 p-12 shadow-xl ring-1 ring-gray-900/5 rounded-lg backdrop-blur-lg max-w-xl mx-auto w-full">
@@ -52,7 +35,7 @@ export default async function AudioFileList() {
         </div>
             <ul>
               { files.map((file) => (
-            <li key={file.id}>
+            <li key={file.id} className="flex items-center space-x-4">
                   <label className="">{file.name}</label>
                   <form>
                     <input
@@ -61,20 +44,34 @@ export default async function AudioFileList() {
                         value={file.url}
                         />
                   <button 
-                  className='ml-3 '
+                  className='ml-3 hover:text-blue-500'
                   formAction={deleteFile}
-                  >Delete</button>
+                  >
+                    
+                    <FaTrash />
+                    <span className='text-sm mt-1'>Delete</span></button>
+                    
                      <button 
-                    className='ml-3'
+                    className='ml-3 hover:text-blue-500'
                     formAction={transcribeFile}>
-                    Transcribe
+                   <FaFileSignature/>
+                  <span className="text-sm mt-1">Transcribe</span>
                   </button>
                   </form>
-               
+    
             </li>
                 ))}
-          
-            </ul>
+                {/* separator */}
+                <li className="border-b border-gray-200 my-4" />
+
+                {/* Transcription */}
+            { TranscribeData.map((item) => (
+                <ClientList  key={item.id} fileName={item.id}>
+                <ServerListItem message={item} />
+                </ClientList>                
+            ))
+            }
+              </ul>
         </div>
     );
 }

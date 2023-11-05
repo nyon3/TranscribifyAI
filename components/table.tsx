@@ -24,11 +24,11 @@ type User = {
 
 export default async function Table() {
   const startTime = Date.now();
-  const users: User[] = await prisma.user.findMany({
-    include: {
-      files: true,
-    },
-  });
+  // const users: User[] = await prisma.user.findMany({
+  //   include: {
+  //     files: true,
+  //   },
+  // });
 
   const duration = Date.now() - startTime;
 

@@ -1,5 +1,6 @@
 import { HfInference } from '@huggingface/inference';
 import prisma from '@/lib/prisma';
+import { revalidatePath } from 'next/cache';
 
 const hf = new HfInference(process.env.HF_ACCESS_TOKEN);
 
@@ -42,25 +43,48 @@ if (!fileRecord) {
     const transcribedFileRecord = await prisma.transcribedFile.findFirst({
         where: { fileId: fileId },
     });
-    
-    if (transcribedFileRecord) {
-        // Update the existing record
-        await prisma.transcribedFile.update({
-            where: {id: transcribedFileRecord.id },
-            data: { text: transcribedText },
-        });
-    } else {
-        // Create a new record
-        await prisma.transcribedFile.create({
-            data: {
-                text: transcribedText,
-                fileId: fileId,
-            },
-        });
-    }
-        return {
-            success: true,
-            message: 'Transcription completed and database updated successfully.',
-        };    
-    }
 
+  // ... [rest of your code before this point]
+
+try {
+  const fileId = fileRecord.id; // fileId should be non-nullable here
+  
+  let transcribedFileOperation;
+  
+  if (transcribedFileRecord) {
+      // If the record exists, prepare an update operation, do not await here
+      transcribedFileOperation = prisma.transcribedFile.update({
+          where: { id: transcribedFileRecord.id },
+          data: { text: transcribedText },
+      });
+  } else {
+      // If the record doesn't exist, prepare a create operation, do not await here
+      transcribedFileOperation = prisma.transcribedFile.create({
+          data: {
+              text: transcribedText,
+              fileId: fileId, // Assuming this is a correct and non-nullable ID
+          },
+      });
+  }
+
+  // Prepare the file update operation, do not await here
+  const fileUpdateOperation = prisma.file.update({
+      where: { id: fileId },
+      data: { isTranscribed: true }, // Set the boolean field to true
+  });
+
+  // Execute both operations in a transaction
+  await prisma.$transaction([transcribedFileOperation, fileUpdateOperation]);
+  revalidatePath('/');
+  return {
+      success: true,
+      message: 'Transcription completed and database updated successfully.',
+  };
+} catch (error) {
+  console.error(error);
+  return {
+      success: false,
+      message: 'Something went wrong',
+  };
+}
+}
