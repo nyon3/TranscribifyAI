@@ -4,6 +4,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import prisma from '@/lib/prisma'
 import type { NextAuthOptions } from "next-auth";
+import { redirect } from "next/navigation";
 
 export const authOptions: NextAuthOptions = {
   // Configure one or more authentication providers
