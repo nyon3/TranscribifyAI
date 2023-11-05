@@ -5,7 +5,6 @@ import { deleteFile } from '@/lib/delete';
 import RefreshButton from '@/components/refresh-button';
 import { transcribeFile } from '@/lib/transcribe';
 import ClientList from './ClientComponent';
-import TranscriptionDisplay from './transcriptionDisplay';
 import ServerListItem from './ServeList';
 import { FaTrash, FaFileSignature } from 'react-icons/fa';
 
