@@ -66,7 +66,7 @@ model File {
   url            String
   userId         String
   user           User            @relation(fields: [userId], references: [id])
-  transcription  String?         // Nullable field for transcription text
+  isTranscribed  Boolean @default(false)
   transcribedFiles TranscribedFile[]  // New relation field here
 }
 

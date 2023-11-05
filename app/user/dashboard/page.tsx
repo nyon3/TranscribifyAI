@@ -6,18 +6,17 @@ import TablePlaceholder from '@/components/table-placeholder';
 import ExpandingArrow from '@/components/expanding-arrow';
 import { LoginButton, LogoutButton } from '@/components/button';
 import AuthStatus from '@/components/authStatus';
-import AvatarUploadPage from '@/components/upload';
+import AudioFileList from '@/components/AudioFileList';
+import { FileUpload } from '@/components/FileUpload';
 
 export default function UserHome() {
     return (
         <main className="relative flex min-h-screen flex-col items-center justify-center">
               <AuthStatus />
-       
             <Suspense fallback={<TablePlaceholder />}>
-                <Table />
+                <AudioFileList />
             </Suspense>
-            <AvatarUploadPage />
-
+            <FileUpload />
             <div className="flex justify-center space-x-5 pt-10 mt-10 border-t border-gray-300 w-full max-w-xl text-gray-600">
                 <Link
                     href="https://postgres-starter.vercel.app/"
