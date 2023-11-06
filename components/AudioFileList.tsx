@@ -34,16 +34,17 @@ export default async function AudioFileList() {
         </div>
             <ul>
               { files.map((file) => (
-            <li key={file.id} className="flex items-center space-x-4">
+            <li key={file.id} className="flex items-center mb-5 space-x-4">
                   <label className="">{file.name}</label>
-                  <form>
+                  <form >
                     <input
                       type='hidden'
                       name='url'
                         value={file.url}
-                        />
+                       />
+                
                   <button 
-                  className='ml-3 hover:text-blue-500'
+                  className='ml-5 hover:text-blue-500'
                   formAction={deleteFile}
                   >
                     
@@ -51,11 +52,12 @@ export default async function AudioFileList() {
                     <span className='text-sm mt-1'>Delete</span></button>
                     
                      <button 
-                    className='ml-3 hover:text-blue-500'
+                    className='ml-5 hover:text-blue-500'
                     formAction={transcribeFile}>
                    <FaFileSignature/>
                   <span className="text-sm mt-1">Transcribe</span>
                   </button>
+                 
                   </form>
     
             </li>
