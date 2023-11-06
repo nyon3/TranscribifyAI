@@ -58,7 +58,8 @@ export const FileUpload = async () => {
     return (
         <div>
            <form action={addAudioFile}>
-            <input type="file" name="file" accept="audio/*" />
+            <input type="file" name="file" accept="audio/*" 
+             className=""/>
              <SubmitButton />
             </form>
         </div>
