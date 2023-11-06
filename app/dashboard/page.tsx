@@ -52,7 +52,7 @@ export default function UserHome() {
                         priority
                     />
                 </Link> */}
-                <Link
+                {/* <Link
                     href="https://github.com/nyon3/TranscribifyAI"
                     className="flex items-center space-x-2"
                 >
@@ -64,7 +64,10 @@ export default function UserHome() {
                         priority
                     />
                     <p className="font-light">Source</p>
-                </Link>
+                </Link> */}
+                <div className="mt-6 text-gray-600 text-center">
+                  Have an inquiry or feedback?
+                </div>
             </div>
         </main>
     );
