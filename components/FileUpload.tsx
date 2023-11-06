@@ -5,28 +5,31 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { revalidatePath } from "next/cache";
 import { SubmitButton } from "./submitButton";
 
-    // Upload file to database using Prisma and Next.js server actions
     const addAudioFile = async(data:FormData) => {
         'use server';
         const session = await getServerSession(authOptions);
         const userId = (session?.user as any)?.id;
-    
+        
         // Check if the userId exists
         if (!userId) {
             console.error('No user id found in session');
-            // Handle the error, maybe return a response indicating the failure
             return;
         }
     
         const file = data.get('file') as File;
-    
-        // Ensure that the file exists
-        if (!file) {
+         if (!file || file.size === 0) {
             console.error('No file found in form data');
-            // Handle the error here as well
             return;
         }
-    
+        if (!file.type.startsWith('audio/')) {
+            console.error('The uploaded file is not an audio file.');
+            return;
+          }
+          
+        if (file.size > 10 * 1024 * 1024) {
+                console.error('The uploaded file is too large.');
+                return;
+            }
         try {
             const result = await put(file.name, file, { access: 'public' });
     
@@ -55,8 +58,9 @@ export const FileUpload = async () => {
     return (
         <div>
            <form action={addAudioFile}>
-            <input type="file" name="file" accept="audio/*" />
-             <SubmitButton/>
+            <input type="file" name="file" accept="audio/*" 
+             className=""/>
+             <SubmitButton />
             </form>
         </div>
     )   
