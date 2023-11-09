@@ -1,14 +1,13 @@
-import Image from 'next/image';
-import Link from 'next/link';
+
 import { Suspense } from 'react';
 import TablePlaceholder from '@/components/table-placeholder';
-import { LogoutButton } from '@/components/button';
+import { LogoutButton } from '@/components/loginButton';
 import AuthStatus from '@/components/authStatus';
-import AudioFileList from '@/components/AudioFileList';
 import { FileUpload } from '@/components/FileUpload';
+import OriginalData from '@/components/audioFileTable/origianlData';
 
 export default function UserHome() {
-    return (
+     return (
         <main className="relative flex min-h-screen flex-col items-center justify-center">
         <div className='flex justify-center items-center space-x-4'>
               <AuthStatus />
@@ -17,9 +16,9 @@ export default function UserHome() {
             <div className="flex flex-col mb-5 items-center justify-center space-y-4">
             <FileUpload />
             </div>
-            <Suspense fallback={<TablePlaceholder />}>
+            {/* <Suspense fallback={<TablePlaceholder />}>
                 <AudioFileList />
-            </Suspense>
+            </Suspense> */}
           
             {/* <div className="flex justify-center space-x-5 pt-10 mt-10 border-t border-gray-300 w-full max-w-xl text-gray-600">
                 <Link
@@ -69,6 +68,8 @@ export default function UserHome() {
                   Have an inquiry or feedback?
                 </div>
             </div>
+            <OriginalData />
+         
         </main>
     );
 }

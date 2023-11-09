@@ -1,10 +1,12 @@
-
+'use server'
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { dataProps } from '@/lib/types';
 
-export const deleteFile = async(data: FormData) => {
-        'use server'
-        const url = data.get('url') as string;
+
+export const deleteFile = async(data: dataProps) => {
+
+        const url = data.url;
         try {
             const file = await prisma.file.findFirst({
                 where: {

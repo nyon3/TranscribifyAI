@@ -1,12 +1,14 @@
+'use server'
 import { HfInference } from '@huggingface/inference';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { dataProps } from '@/lib/types';
 
 const hf = new HfInference(process.env.HF_ACCESS_TOKEN);
 
-export const transcribeFile = async(data:FormData) => {
-        'use server'
-     const url = data.get('url') as string;
+export const transcribeFile = async(data:dataProps) => {
+
+      const url = data.url;
      if (!url) {
          throw new Error('Missing URL');
      }

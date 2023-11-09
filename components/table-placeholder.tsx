@@ -1,4 +1,3 @@
-import RefreshButton from './refresh-button'
 
 export default function TablePlaceholder() {
   return (
@@ -8,7 +7,6 @@ export default function TablePlaceholder() {
           <h2 className="text-xl font-semibold">Your files</h2>
           <p className="text-sm text-gray-500">Fetching users...</p>
         </div>
-        <RefreshButton />
       </div>
       <div className="divide-y divide-gray-900/5">
         {[...Array(3)].map((_, i) => (
