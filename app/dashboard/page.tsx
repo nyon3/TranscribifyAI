@@ -7,19 +7,19 @@ import { FileUpload } from '@/components/FileUpload';
 import OriginalData from '@/components/audioFileTable/origianlData';
 
 export default function UserHome() {
-     return (
+    return (
         <main className="relative flex min-h-screen flex-col items-center justify-center">
-        <div className='flex justify-center items-center space-x-4'>
-              <AuthStatus />
-              <LogoutButton />
+            <div className='flex justify-center items-center space-x-4'>
+                <AuthStatus />
+                <LogoutButton />
             </div>
             <div className="flex flex-col mb-5 items-center justify-center space-y-4">
-            <FileUpload />
+                <FileUpload />
             </div>
             {/* <Suspense fallback={<TablePlaceholder />}>
                 <AudioFileList />
             </Suspense> */}
-          
+
             {/* <div className="flex justify-center space-x-5 pt-10 mt-10 border-t border-gray-300 w-full max-w-xl text-gray-600">
                 <Link
                     href="https://postgres-starter.vercel.app/"
@@ -65,11 +65,11 @@ export default function UserHome() {
                     <p className="font-light">Source</p>
                 </Link> */}
                 <div className="mt-6 text-gray-600 text-center">
-                  Have an inquiry or feedback?
+                    Have an inquiry or feedback?
                 </div>
             </div>
             <OriginalData />
-         
+
         </main>
     );
 }
