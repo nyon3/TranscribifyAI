@@ -17,7 +17,7 @@ export type dataProps = {
   url: string;
   userId: string;
   isTranscribed: boolean;
-  transcribedFiles: TranscribeProps[]; // This is the related transcribedFiles
+  transcribedFile: TranscribeProps | null;// This is the related transcribedFiles
 };
 
 export type TranscribeProps = {
@@ -40,9 +40,9 @@ export async function getUserData(): Promise<dataProps[]> {
   if (!userId) return [];
   const files = await prisma.file.findMany({
     where: { userId },
-    include: { transcribedFiles: true } // Include the related transcribedFiles in the result 
+    include: { TranscribedFile: true } // Matches the field name in your Prisma schema
   });
-  return files as [];
+  return files as dataProps[];
 }
 
 // export async function getTranscribeData(): Promise<TranscribeProps[]> {

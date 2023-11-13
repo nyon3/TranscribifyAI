@@ -53,8 +53,8 @@ export function DataTable<TData, TValue>({
 
   const handleSetText = (fileData: dataProps) => {
     console.log(fileData); // Add this to debug
-    if (fileData.transcribedFiles.length > 0) {
-      setText(fileData.transcribedFiles[0].text); // Use the text property
+    if (fileData.transcribedFile.length > 0) {
+      setText(fileData.transcribedFile[0].text); // Use the text property
     } else {
       // Handle the case where there is no transcription available
       setText("No transcription available.");
