@@ -1,7 +1,7 @@
 'use server'
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
-import { dataProps } from '@/lib/types';
+import { dataProps } from '@/lib/db';
 
 
 export const deleteFile = async(data: dataProps) => {

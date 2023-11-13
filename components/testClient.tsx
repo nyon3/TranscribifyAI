@@ -2,7 +2,7 @@
 'use client'
 
 import { deleteFile } from '@/lib/delete'
-import { dataProps } from '@/lib/types'
+import { dataProps } from '@/lib/db'
 
 type Props = {
   data: dataProps

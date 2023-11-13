@@ -2,7 +2,7 @@
 import { HfInference } from '@huggingface/inference';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
-import { dataProps } from '@/lib/types';
+import { dataProps } from '@/lib/db';
 
 const hf = new HfInference(process.env.HF_ACCESS_TOKEN);
 

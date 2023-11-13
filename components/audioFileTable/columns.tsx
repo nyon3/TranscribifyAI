@@ -9,7 +9,6 @@ export type AudioFile = {
   id: number
   isTranscribed: boolean
   name: string
-  url: string
 }
 
 export const columns: ColumnDef<AudioFile>[] = [
@@ -21,8 +20,5 @@ export const columns: ColumnDef<AudioFile>[] = [
     accessorKey: "isTranscribed",
     header: "Transcribed?",
   },
-  {
-    accessorKey: "url",
-    header: "URL",
-  }
 ]
+
