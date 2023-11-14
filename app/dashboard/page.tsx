@@ -5,6 +5,7 @@ import { LogoutButton } from '@/components/loginButton';
 import AuthStatus from '@/components/authStatus';
 import { FileUpload } from '@/components/FileUpload';
 import { OriginalData } from '@/components/audioFileTable/origianlData';
+import TranscriptionTestComponent from '@/components/TEST-transcribe';
 
 export default function UserHome() {
     return (
@@ -69,7 +70,7 @@ export default function UserHome() {
                 </div>
             </div>
             <OriginalData />
-
+            <TranscriptionTestComponent />
         </main>
     );
 }

@@ -27,22 +27,19 @@ import {
 
 import { deleteFile } from "@/lib/delete"
 import { transcribeFile } from "@/lib/transcribe"
-import { dataProps } from "@/lib/db"
+import { dataProps, dataPropsForComponent } from "@/lib/db"
 
 import React, { useContext } from 'react';
 import { FileContext } from '@/components/FileIdContext';
 
-
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  onFileSelect?: (fileId: any) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  onFileSelect,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -51,15 +48,17 @@ export function DataTable<TData, TValue>({
   })
   const { setText } = useContext(FileContext);
 
-  const handleSetText = (fileData: dataProps) => {
-    console.log(fileData); // Add this to debug
-    if (fileData.transcribedFile.length > 0) {
-      setText(fileData.transcribedFile[0].text); // Use the text property
+  const handleSetText = (fileData: dataPropsForComponent) => {
+    if (fileData.transcribedFiles) {
+      // Access the text property directly from the transcribedFiles object
+      setText(fileData.transcribedFiles.text);
     } else {
       // Handle the case where there is no transcription available
       setText("No transcription available.");
     }
   };
+
+
 
   return (
     <div className="max-w-lg rounded-md border">
@@ -85,7 +84,7 @@ export function DataTable<TData, TValue>({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => {
-              const rowData: dataProps = row.original as dataProps; // Cast the row data to your dataProps type
+              const rowData: dataPropsForComponent = row.original as dataPropsForComponent;// C
               return (
                 <TableRow
                   key={row.id}
@@ -98,7 +97,7 @@ export function DataTable<TData, TValue>({
                         <TableCell
                           key={cell.id}
                           // Use onClick handler only if onFileSelect is provided
-                          onClick={() => handleSetText(rowData)}
+                          onClick={async () => handleSetText(rowData)}
                         >
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>

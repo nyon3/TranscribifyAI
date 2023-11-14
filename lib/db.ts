@@ -17,16 +17,27 @@ export type dataProps = {
   url: string;
   userId: string;
   isTranscribed: boolean;
-  transcribedFile: TranscribeProps | null;// This is the related transcribedFiles
+  transcribedFiles?: TranscribeProps[] | null; // Not an array
 };
 
 export type TranscribeProps = {
   id: number;
-  fileId: number;
   text: string;
   createdAt: Date;
   updatedAt: Date;
+  fileId: number;
   file: dataProps; // This is the related file record
+};
+
+export type dataPropsForComponent = {
+  id: number;
+  name: string;
+  updatedAt: Date;
+  createdAt: Date;
+  url: string;
+  userId: string;
+  isTranscribed: boolean;
+  transcribedFiles?: TranscribeProps | null; // Now an object
 };
 
 export async function getUserId() {
@@ -40,39 +51,22 @@ export async function getUserData(): Promise<dataProps[]> {
   if (!userId) return [];
   const files = await prisma.file.findMany({
     where: { userId },
-    include: { TranscribedFile: true } // Matches the field name in your Prisma schema
+    include: { transcribedFiles: true }
   });
   return files as dataProps[];
 }
 
-// export async function getTranscribeData(): Promise<TranscribeProps[]> {
-//   const userId = await getUserId();
-//   if (!userId) return [];
+// export async function filesWithTranscription(data = 45): Promise<TranscribeDataProps[]> {
+//   // Fetch the transcription data
 //   const transcribeData = await prisma.transcribedFile.findMany({
-//     where: {
-//       file: { userId }
-//     },
-//     include: { file: true } // Include the file data if needed
+//     select: { fileId: data, text: true },
 //   });
-//   return transcribeData as TranscribeProps[];
+//   console.log('Transcribe Data:', transcribeData);
+
+//   // If the transcription data is found, return it
+//   if (transcribeData.length === 0) {
+//     throw new Error(`Transcription data not found`);
+//   }
+
+//   return transcribeData as TranscribeDataProps[];
 // }
-
-export async function filesWithTranscription(fileId: number): Promise<TranscribeProps> {
-  // Fetch the transcription data directly by its fileId
-  const transcribeData = await prisma.transcribedFile.findFirst({
-    where: {
-      fileId: fileId // Match fileId in TranscribeProps with the provided fileId
-    },
-    include: {
-      file: true, // Include the related file data
-    }
-  });
-  console.log('Transcribe Data:', transcribeData);
-  // If the transcription data is found, return it
-  if (!transcribeData) {
-    throw new Error(`Transcription data not found for fileId ${fileId}`);
-  }
-
-  return transcribeData as TranscribeProps; // Ensure the returned object matches the TranscribeProps type
-}
-

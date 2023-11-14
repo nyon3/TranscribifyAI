@@ -67,7 +67,7 @@ model File {
   userId         String
   user           User            @relation(fields: [userId], references: [id])
   isTranscribed  Boolean @default(false)
-  transcribedFile TranscribedFile?
+  transcribedFiles TranscribedFile?
  }
 
 model TranscribedFile {

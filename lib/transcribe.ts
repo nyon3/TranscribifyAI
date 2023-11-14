@@ -2,11 +2,11 @@
 import { HfInference } from '@huggingface/inference';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
-import { dataProps } from '@/lib/db';
+import { dataProps, dataPropsForComponent } from '@/lib/db';
 
 const hf = new HfInference(process.env.HF_ACCESS_TOKEN);
 
-export const transcribeFile = async (data: dataProps) => {
+export const transcribeFile = async (data: dataProps | dataPropsForComponent) => {
 
     const url = data.url;
     if (!url) {
