@@ -20,7 +20,7 @@ export const deleteFile = async (data: dataProps | dataPropsForComponent) => {
             // Begin a transaction to ensure both deletions succeed or fail together
             await prisma.$transaction(async (prisma) => {
                 // If there are related transcribedFiles, delete them first
-                if (file.transcribedFiles && file.transcribedFiles.length > 0) {
+                if (file.transcribedFiles) {
                     await prisma.transcribedFile.deleteMany({
                         where: {
                             fileId: file.id
