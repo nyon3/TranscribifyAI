@@ -1,4 +1,4 @@
-import { LoginButton, HomePageLoginButton } from '../components/button';
+import { LoginButton, HomePageLoginButton } from '../components/loginButton';
 import { FaGithub, FaTwitter, FaDiscord } from 'react-icons/fa';
 
 export default function Home() {
