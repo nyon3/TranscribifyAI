@@ -98,10 +98,10 @@ export async function summarizingTranscribedAudioData(data: dataPropsForComponen
         const summary = await ChatGptSummarize(data.transcribedFiles?.text || "");
 
         // Store or update the summary in the database
-        const summaryRecord = await handleSummaryDatabase(id, summary);
+        await handleSummaryDatabase(id, summary);
 
         // Return the stored or updated summary record
-        return summaryRecord;
+        return summary;
     } catch (error) {
         console.error("Error in summarizing and storing transcription:", error);
         throw error;
