@@ -11,11 +11,11 @@ const TranscriptionDisplay = () => {
     const { text: fileId } = useContext(FileContext);
 
     if (!fileId) {
-        return <Textarea placeholder="No file selected" value={""} readOnly />;
+        return <Textarea className="w-96 h-4xl" placeholder="No file selected" value={""} readOnly />;
     }
 
     return (
-        <Textarea placeholder='No file selected' value={fileId} readOnly />
+        <Textarea className="w-96 h-4xl" placeholder='No file selected' value={fileId} readOnly />
 
     );
 };

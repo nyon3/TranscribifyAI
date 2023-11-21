@@ -70,7 +70,7 @@ export default function UserHome() {
                 </div>
             </div>
             <OriginalData />
-            <TranscriptionTestComponent />
+            {/* <TranscriptionTestComponent /> */}
         </main>
     );
 }

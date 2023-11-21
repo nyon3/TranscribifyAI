@@ -24,8 +24,15 @@ const addAudioFile = async (data: FormData) => {
         console.error('The uploaded file is not an audio file.');
         return;
     }
+    // make a list of file max sizes
+    const allowedFileSizes = {
+        "small": 1 * 1024 * 1024,
+        "medium": 5 * 1024 * 1024,
+        "large": 10 * 1024 * 1024,
+        "extraLarge": 20 * 1024 * 1024,
+    }
 
-    if (file.size > 10 * 1024 * 1024) {
+    if (file.size > allowedFileSizes.extraLarge) {
         console.error('The uploaded file is too large.');
         return;
     }

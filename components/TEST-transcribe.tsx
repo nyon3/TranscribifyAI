@@ -37,7 +37,6 @@ export async function filesWithTranscription() {
 
 export default async function TranscriptionsRoute() {
     const transcriptions = await filesWithTranscription();
-    console.log(transcriptions)
     return (
         <div>
             <h1>Transcriptions</h1>

@@ -26,7 +26,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { deleteFile } from "@/lib/delete"
-import { transcribeFile } from "@/lib/transcribe"
+import { summarize, summarizingTranscribedAudioData } from "@/lib/summarize"
+import { transcribeWithTime, transcribeWithHF } from "@/lib/transcribeWithTime"
 import { dataProps, dataPropsForComponent } from "@/lib/db"
 
 import React, { useContext } from 'react';
@@ -120,8 +121,18 @@ export function DataTable<TData, TValue>({
                           Delete
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={async () => transcribeFile(rowData)}
+                          onClick={async () => transcribeWithHF(rowData)}
                         >Transcribe</DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={async () => transcribeWithTime(rowData)}
+                        >Transcribe (Timestamp)</DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={async () => {
+
+                            summarizingTranscribedAudioData(rowData).then((res) => alert(res))
+
+                          }}
+                        >Summarize</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

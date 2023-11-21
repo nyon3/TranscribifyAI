@@ -5,6 +5,8 @@ import { revalidatePath } from 'next/cache';
 import { dataProps, dataPropsForComponent } from '@/lib/db';
 
 const hf = new HfInference(process.env.HF_ACCESS_TOKEN);
+// If you want to use HF Inference endpoint, use the following instead:
+// const hf = new HfInference(process.env.HF_INFERENCE_API);
 
 export const transcribeFile = async (data: dataProps | dataPropsForComponent) => {
 
@@ -24,8 +26,11 @@ export const transcribeFile = async (data: dataProps | dataPropsForComponent) =>
 
     const transcriptionResult = await hf.automaticSpeechRecognition({
         data: audioData,
-        model: 'facebook/wav2vec2-large-960h-lv60-self',
+        model: 'distil-whisper/distil-medium.en',
     });
+    // Use this instead if you want to use HF Inference endpoint:
+    // const result = hf.endpoint("https://n8r9bwi0f4azrcs5.us-east-1.aws.endpoints.huggingface.cloud")
+    // const output = await result.automaticSpeechRecognition({ data: audioData })
 
     // Assuming that transcriptionResult.text contains the transcribed text as a string
     const transcribedText = transcriptionResult.text;
@@ -34,7 +39,7 @@ export const transcribeFile = async (data: dataProps | dataPropsForComponent) =>
         where: { url: url },
     });
 
-
+    console.log(fileRecord)
     // Make sure you have a valid fileId from the fileRecord before proceeding
     if (!fileRecord) {
         throw new Error('File record not found');
