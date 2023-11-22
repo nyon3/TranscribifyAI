@@ -32,6 +32,8 @@ import { dataProps, dataPropsForComponent } from "@/lib/db"
 
 import React, { useContext } from 'react';
 import { FileContext } from '@/components/FileIdContext';
+import { stat } from "fs"
+import { e } from "@vercel/blob/dist/put-96a1f07e"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -47,17 +49,26 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
-  const { setText } = useContext(FileContext);
+  const { setText, setState } = useContext(FileContext);
 
   const handleSetText = (fileData: dataPropsForComponent) => {
     if (fileData.transcribedFiles) {
       // Access the text property directly from the transcribedFiles object
       setText(fileData.transcribedFiles.text);
+      setState(fileData.transcribedFiles.summary);
     } else {
       // Handle the case where there is no transcription available
       setText("No transcription available.");
     }
   };
+
+  const handleSummarize = async (state: string) => {
+    if (state) {
+      setState(state);
+    } else {
+      setState("No file selected.");
+    }
+  }
 
 
 
@@ -129,7 +140,7 @@ export function DataTable<TData, TValue>({
                         <DropdownMenuItem
                           onClick={async () => {
 
-                            summarizingTranscribedAudioData(rowData).then((res) => alert(res))
+                            summarizingTranscribedAudioData(rowData).then((res) => handleSetText(res))
 
                           }}
                         >Summarize</DropdownMenuItem>

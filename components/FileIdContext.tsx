@@ -19,7 +19,7 @@ export const FileContext = createContext<FileContextType>({
 
 // Create a provider component
 const FileIdContextProvider = ({ children }: { children: ReactNode }) => {
-    const [state, setState] = useState('some value');
+    const [state, setState] = useState('');
     const [text, setText] = useState<string | null>(null);
 
     return (
