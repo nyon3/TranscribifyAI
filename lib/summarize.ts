@@ -1,6 +1,7 @@
 'use server'
 import prisma from '@/lib/prisma';
 import { TranscribeProps, dataPropsForComponent } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
 
 async function handleSummaryDatabase(fileId: number, summaryText: string) {
     const summaryRecord = await prisma.transcribedFile.findUnique({
@@ -99,9 +100,12 @@ export async function summarizingTranscribedAudioData(data: dataPropsForComponen
 
         // Store or update the summary in the database
         await handleSummaryDatabase(id, summary);
-
+        revalidatePath('/');
         // Return the stored or updated summary record
-        return summary;
+        return {
+            success: true,
+            message: 'Summary completed and database updated successfully.',
+        }
     } catch (error) {
         console.error("Error in summarizing and storing transcription:", error);
         throw error;

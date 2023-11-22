@@ -1,23 +1,33 @@
-// SummarizeDisplay.tsx
+// TextDisplay.tsx
 
 'use client';
 
 import React, { useContext } from 'react';
-import { FileContext } from '@/components/FileIdContext';
-
+import { FileContext } from '@/components/context/FileIdContext';
 import { Textarea } from '@/components/ui/textarea';
 
-const SummarizeDisplay = () => {
-    const { state } = useContext(FileContext);
 
-    if (!state) {
-        return <Textarea className="w-96 h-4xl" placeholder="No file selected" value={""} readOnly />;
+const ResultDisplay = () => {
+    const { text: transcriptionText, state: summaryText, isLoading } = useContext(FileContext);
+    if (isLoading) {
+        return <div>Loading...</div>
     }
-
     return (
-        <Textarea className="w-96 h-4xl" placeholder='No file selected' value={state} readOnly />
-
+        <>
+            <Textarea
+                className="w-96 h-4xl" // Adjust size as needed
+                placeholder="Transcription will be displayed here"
+                value={transcriptionText || ''}
+                readOnly
+            />
+            <Textarea
+                className="w-96 h-4xl" // Adjust size as needed
+                placeholder="Summary will be displayed here"
+                value={summaryText || ''}
+                readOnly
+            />
+        </>
     );
 };
 
-export default SummarizeDisplay;
+export default ResultDisplay;

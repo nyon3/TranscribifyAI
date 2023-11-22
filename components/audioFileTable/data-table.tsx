@@ -1,21 +1,13 @@
 "use client"
 
+import React, { useContext } from 'react';
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,16 +16,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
 import { deleteFile } from "@/lib/delete"
 import { summarize, summarizingTranscribedAudioData } from "@/lib/summarize"
 import { transcribeWithTime, transcribeWithHF } from "@/lib/transcribeWithTime"
 import { dataProps, dataPropsForComponent } from "@/lib/db"
-
-import React, { useContext } from 'react';
-import { FileContext } from '@/components/FileIdContext';
-import { stat } from "fs"
-import { e } from "@vercel/blob/dist/put-96a1f07e"
+import { FileContext } from '@/components/context/FileIdContext';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -49,78 +36,71 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
-  const { setText, setState } = useContext(FileContext);
+
+  const { setText, setState, setLoading } = useContext(FileContext);
 
   const handleSetText = (fileData: dataPropsForComponent) => {
     if (fileData.transcribedFiles) {
-      // Access the text property directly from the transcribedFiles object
       setText(fileData.transcribedFiles.text);
       setState(fileData.transcribedFiles.summary);
     } else {
-      // Handle the case where there is no transcription available
-      setText("No transcription available.");
+      setText('');
+      setState('');
     }
   };
 
-  const handleSummarize = async (state: string) => {
-    if (state) {
-      setState(state);
-    } else {
-      setState("No file selected.");
+  const handleTranscribeClick = async (rowData: dataPropsForComponent) => {
+    setLoading(true); // Start loading
+    try {
+      await transcribeWithHF(rowData); // Call your server side function
+      // handle the result
+    } catch (error) {
+      // handle error
     }
-  }
-
-
+    setLoading(false); // End loading
+  };
 
   return (
     <div className="max-w-lg rounded-md border">
       <Table>
         <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
+          {table.getHeaderGroups().map(headerGroup => (
             <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                  </TableHead>
-                )
-              })}
+              {headerGroup.headers.map(header => (
+                <TableHead key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(header.column.columnDef.header, header.getContext())}
+                </TableHead>
+              ))}
             </TableRow>
           ))}
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => {
-              const rowData: dataPropsForComponent = row.original as dataPropsForComponent;// C
+            table.getRowModel().rows.map(row => {
+              const rowData: dataPropsForComponent = row.original as dataPropsForComponent;
               return (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() ? "selected" : undefined}
+                  onClick={() => handleSetText(rowData)} // Set text and summary when clicking on any part of the row
                 >
-                  {row.getVisibleCells().map((cell) => {
-                    // Check if this is the column you want to make clickable
-                    if (cell.column.id === 'name') { // Add check for onFileSelect
-                      return (
-                        <TableCell
-                          key={cell.id}
-                          // Use onClick handler only if onFileSelect is provided
-                          onClick={async () => handleSetText(rowData)}
-                        >
+                  {row.getVisibleCells().map((cell, cellIndex) => {
+                    // Add additional styling or an icon for the first column to indicate clickability
+                    const isClickableCell = cellIndex === 0; // Assuming the first column is the clickable one
+                    return (
+                      <TableCell
+                        key={cell.id}
+                        className={isClickableCell ? "cursor-pointer hover:text-blue-500" : ""}
+                        onClick={isClickableCell ? () => handleSetText(rowData) : undefined}
+                      >
+                        <div className="flex items-center"> {/* Use Flexbox to align items */}
+                          {isClickableCell && <span className="mr-2">🔗</span>} {/* Add an icon or similar indicator before the cell content */}
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      );
-                    } else {
-                      return (
-                        <TableCell key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      );
-                    }
+                        </div>
+                      </TableCell>
+                    );
                   })}
                   <TableCell>
                     <DropdownMenu>
@@ -128,29 +108,23 @@ export function DataTable<TData, TValue>({
                       <DropdownMenuContent>
                         <DropdownMenuLabel>Command</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={async () => deleteFile(rowData)}>
+                        <DropdownMenuItem onClick={() => deleteFile(rowData)}>
                           Delete
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={async () => transcribeWithHF(rowData)}
-                        >Transcribe</DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={async () => transcribeWithTime(rowData)}
-                        >Transcribe (Timestamp)</DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={async () => {
-
-                            summarizingTranscribedAudioData(rowData).then((res) => handleSetText(res))
-
-                          }}
-                        >Summarize</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleTranscribeClick(rowData)}>
+                          Transcribe
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => transcribeWithTime(rowData)}>
+                          Transcribe (Timestamp)
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => summarizingTranscribedAudioData(rowData)}>
+                          Summarize
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
-
                 </TableRow>
-
-              )
+              );
             })
           ) : (
             <TableRow>
