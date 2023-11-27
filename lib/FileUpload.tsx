@@ -1,11 +1,12 @@
+'use server';
 import prisma from "@/lib/prisma";
 import { put } from '@vercel/blob';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { revalidatePath } from "next/cache";
 
-const addAudioFile = async (data: FormData) => {
-    'use server';
+export const addAudioFile = async (data: FormData) => {
+
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -44,32 +45,16 @@ const addAudioFile = async (data: FormData) => {
             throw new Error('File upload failed, no URL returned');
         }
 
-        await prisma.file.create({
+        const createdFile = await prisma.file.create({
             data: {
                 name: file.name,
                 url: result.url,
-                userId: userId, // Make sure this is not undefined
+                userId: userId,
             }
         });
+        return createdFile; // Return the created file object
     } catch (error) {
         console.error(error);
-        // Handle your error here
+        throw error; // Rethrow the error to be handled by the caller
     }
-    revalidatePath('/');
 };
-
-
-export const FileUpload = async () => {
-
-    return (
-        <div>
-            <form action={addAudioFile}>
-                <input type="file" name="file" accept="audio/*"
-                    className="" />
-                <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Upload
-                </button>
-            </form>
-        </div>
-    )
-}

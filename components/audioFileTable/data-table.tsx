@@ -17,9 +17,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { deleteFile } from "@/lib/delete"
-import { summarize, summarizingTranscribedAudioData } from "@/lib/summarize"
-import { transcribeWithTime, transcribeWithHF } from "@/lib/transcribeWithTime"
-import { dataProps, dataPropsForComponent } from "@/lib/db"
+import { summarizingTranscribedAudioData } from "@/lib/summarize"
+import { dataPropsForComponent } from "@/lib/db"
 import { FileContext } from '@/components/context/FileIdContext';
 
 interface DataTableProps<TData, TValue> {
@@ -47,17 +46,6 @@ export function DataTable<TData, TValue>({
       setText('');
       setState('');
     }
-  };
-
-  const handleTranscribeClick = async (rowData: dataPropsForComponent) => {
-    setLoading(true); // Start loading
-    try {
-      await transcribeWithHF(rowData); // Call your server side function
-      // handle the result
-    } catch (error) {
-      // handle error
-    }
-    setLoading(false); // End loading
   };
 
   return (
@@ -110,12 +98,6 @@ export function DataTable<TData, TValue>({
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => deleteFile(rowData)}>
                           Delete
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleTranscribeClick(rowData)}>
-                          Transcribe
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => transcribeWithTime(rowData)}>
-                          Transcribe (Timestamp)
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => summarizingTranscribedAudioData(rowData)}>
                           Summarize

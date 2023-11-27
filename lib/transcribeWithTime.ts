@@ -38,46 +38,50 @@ async function processTranscription(url: string, transcribedText: string) {
     return fileRecord.id; // Optionally we can return the fileId for further use
 }
 
-// TODO: Can't add timestamp to the text, I assume it need to modify with pipline API, but I don't know how to do it.
-export const transcribeWithHF = async (data: dataProps | dataPropsForComponent) => {
+export const transcribeAudio = async (data: dataProps | dataPropsForComponent, isTimestamped: boolean) => {
     const url = data.url;
     if (!url) {
         throw new Error('Missing URL');
     }
 
-    // Fetch the audio file from the URL
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error(`Failed to fetch the audio file from the URL: ${url}`);
     }
 
-    // Convert the response into a Blob or ArrayBuffer
-    const audioData = await response.blob(); // or use response.arrayBuffer() if needed
+    const audioData = await response.blob();
 
-    // Prepare the FormData for the API request
     const formData = new FormData();
     formData.append('file', audioData, 'audio');
 
-    // Define the Huggingface Inference API endpoint
-    const huggingfaceEndPoint = "https://n8r9bwi0f4azrcs5.us-east-1.aws.endpoints.huggingface.cloud";
+    let apiEndpoint, headers;
 
-    // Make the API request to Huggingface
-    const output = await fetch(huggingfaceEndPoint, {
-        method: 'POST',
-        headers: {
+    if (isTimestamped) {
+        apiEndpoint = "https://api.openai.com/v1/audio/transcriptions";
+        formData.append("model", "whisper-1");
+        formData.append("response_format", "srt");
+        headers = {
+            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        };
+    } else {
+        apiEndpoint = "https://n8r9bwi0f4azrcs5.us-east-1.aws.endpoints.huggingface.cloud";
+        headers = {
             'Authorization': `Bearer ${process.env.HF_INFERENCE_API}`,
-            "Content-Type": "audio/mpeg"
-        },
+        };
+    }
+
+    console.log("Sending request to:", apiEndpoint);
+    console.log("FormData Contents:", formData);
+
+    const output = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: headers,
         body: formData
     });
 
-    // Process the response from Huggingface API
+    // Process the response from the API
     if (output.ok) {
-
-        // Assuming response is JSON
-        const jsonResponse = await output.json();
-        const transcribedText = jsonResponse.text;
-
+        const transcribedText = isTimestamped ? await output.text() : (await output.json()).text;
 
         try {
             await processTranscription(url, transcribedText);
@@ -95,61 +99,10 @@ export const transcribeWithHF = async (data: dataProps | dataPropsForComponent) 
         }
     } else {
         // Handle error response
-        console.error("Error from Huggingface API:", await output.text());
-    }
-}
-
-
-
-export const transcribeWithTime = async (data: dataProps | dataPropsForComponent) => {
-
-    const url = data.url;
-    if (!url) {
-        throw new Error('Missing URL');
-    }
-
-    // Fetch the audio file from the URL
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`Failed to fetch the audio file from the URL: ${url}`);
-    }
-
-    // Convert the response into a Blob or ArrayBuffer
-    const audioData = await response.blob(); // or use response.arrayBuffer() if needed
-
-    const formData = new FormData();
-    formData.append('file', audioData, 'audio.mp3');
-    formData.append("model", "whisper-1");
-    formData.append("response_format", "srt");
-
-    const endPoint = "https://api.openai.com/v1/audio/transcriptions"
-
-    const output = await fetch(endPoint, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-        body: formData
-    },
-    )
-    if (output.ok) {
-        const transcribedText = await output.text();
-        console.log(transcribedText);
-        try {
-            await processTranscription(url, transcribedText);
-            revalidatePath('/');
-            return {
-                success: true,
-                message: 'Transcription completed and database updated successfully.',
-            };
-        } catch (error) {
-            console.error(error);
-            return {
-                success: false,
-                message: 'Something went wrong',
-            };
+        console.error("Error from API:", await output.text());
+        return {
+            success: false,
+            message: 'Failed to transcribe audio file',
         };
-    } else {
-        console.error("Error from OpenAI API:", await output.text());
     }
 }

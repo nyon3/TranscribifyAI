@@ -3,19 +3,18 @@ import { Suspense } from 'react';
 import TablePlaceholder from '@/components/table-placeholder';
 import { LogoutButton } from '@/components/loginButton';
 import AuthStatus from '@/components/authStatus';
-import { FileUpload } from '@/components/FileUpload';
 import { OriginalData } from '@/components/audioFileTable/origianlData';
 import TranscriptionTestComponent from '@/components/TEST-transcribe';
+import AudioUploadButton from '@/components/audioUpload-button';
 
 export default function UserHome() {
     return (
         <main className="relative flex min-h-screen flex-col items-center justify-center">
-            <div className='flex justify-center items-center space-x-4'>
-                <AuthStatus />
-                <LogoutButton />
-            </div>
-            <div className="flex flex-col mb-5 items-center justify-center space-y-4">
-                <FileUpload />
+            <div className='flex justify-end w-full px-4'>
+                <div className='flex items-center space-x-4'>
+                    <AudioUploadButton />
+                    <AuthStatus />
+                </div>
             </div>
             {/* <Suspense fallback={<TablePlaceholder />}>
                 <AudioFileList />
