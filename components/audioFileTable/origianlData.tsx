@@ -13,7 +13,7 @@ export async function OriginalData() {
   const files = await getUserData();
 
   return (
-    <div className="container mx-auto flex gap-5 py-10">
+    <div className="h-screen container flex gap-5">
       <DataTable columns={columns} data={files} />
       <ResultDisplay />
     </div>

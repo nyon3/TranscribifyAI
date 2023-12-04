@@ -1,5 +1,3 @@
-// TextDisplay.tsx
-
 'use client';
 
 import React, { useContext } from 'react';
@@ -9,23 +7,31 @@ import { Textarea } from '@/components/ui/textarea';
 
 const ResultDisplay = () => {
     const { text: transcriptionText, state: summaryText, isLoading } = useContext(FileContext);
+
+    const renderTextarea = (placeholder: string, value: string) => (
+        // height is slightly smaller than screen size
+        <Textarea
+            className="h-full w-full"
+            placeholder={placeholder}
+            value={value || ''}
+            readOnly
+        />
+    );
+
     if (isLoading) {
-        return <div>Loading...</div>
+        return (
+            <div className="flex justify-center items-center">
+                <div className="text-center">
+                    <p className="text-center text-lg font-bold mt-2">Loading...</p>
+                </div>
+            </div>
+        );
     }
+
     return (
         <>
-            <Textarea
-                className="w-96 h-4xl" // Adjust size as needed
-                placeholder="Transcription will be displayed here"
-                value={transcriptionText || ''}
-                readOnly
-            />
-            <Textarea
-                className="w-96 h-4xl" // Adjust size as needed
-                placeholder="Summary will be displayed here"
-                value={summaryText || ''}
-                readOnly
-            />
+            {renderTextarea("Transcription will be displayed here", transcriptionText)}
+            {renderTextarea("Summary will be displayed here", summaryText)}
         </>
     );
 };

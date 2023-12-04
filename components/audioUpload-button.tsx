@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { handleAudioProcess } from '@/lib/hadleAudioProcess';
+import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -51,8 +52,8 @@ export default function AudioUploadButton() {
     return (
         <div>
             <DropdownMenu>
-                <DropdownMenuTrigger>
-                    Upload
+                <DropdownMenuTrigger asChild>
+                    <Button>Upload</Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56">
                     <DropdownMenuLabel>Select Transcription Type</DropdownMenuLabel>

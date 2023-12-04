@@ -48,8 +48,19 @@ export function DataTable<TData, TValue>({
     }
   };
 
+  const handleDelete = async (fileData: dataPropsForComponent) => {
+    setLoading(true);
+    await deleteFile(fileData);
+    setLoading(false);
+  }
+  const handleSummarize = async (fileData: dataPropsForComponent) => {
+    setLoading(true);
+    await summarizingTranscribedAudioData(fileData); // Wait for the summarizing process to complete
+    setLoading(false);
+  }
+
   return (
-    <div className="max-w-lg rounded-md border">
+    <div className="h-full w-2xl rounded-md border">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map(headerGroup => (
@@ -96,10 +107,10 @@ export function DataTable<TData, TValue>({
                       <DropdownMenuContent>
                         <DropdownMenuLabel>Command</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => deleteFile(rowData)}>
+                        <DropdownMenuItem onClick={() => handleDelete(rowData)}>
                           Delete
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => summarizingTranscribedAudioData(rowData)}>
+                        <DropdownMenuItem onClick={() => handleSummarize(rowData)}>
                           Summarize
                         </DropdownMenuItem>
                       </DropdownMenuContent>
