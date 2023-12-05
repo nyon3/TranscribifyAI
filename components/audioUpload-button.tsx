@@ -59,7 +59,8 @@ export default function AudioUploadButton() {
                     <DropdownMenuLabel>Select Transcription Type</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => handleDialogOpen(false)}>Transcription</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDialogOpen(true)}>Timestamped Transcription</DropdownMenuItem>
+                    {/* <DropdownMenuItem onClick={() => handleDialogOpen(true)}>Timestamped Transcription</DropdownMenuItem> */}
+                    <DropdownMenuItem className='text-gray-400'>Timestamped Text (Coming Soon)</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
 

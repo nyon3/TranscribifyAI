@@ -67,6 +67,7 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
         apiEndpoint = "https://n8r9bwi0f4azrcs5.us-east-1.aws.endpoints.huggingface.cloud";
         headers = {
             'Authorization': `Bearer ${process.env.HF_INFERENCE_API}`,
+            "Content-Type": "audio/flac",
         };
     }
 

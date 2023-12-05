@@ -11,7 +11,7 @@ const ResultDisplay = () => {
     const renderTextarea = (placeholder: string, value: string) => (
         // height is slightly smaller than screen size
         <Textarea
-            className="h-full w-full"
+            className="h-full"
             placeholder={placeholder}
             value={value || ''}
             readOnly
