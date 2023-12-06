@@ -1,11 +1,11 @@
+'use server';
 import prisma from "@/lib/prisma";
 import { put } from '@vercel/blob';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { revalidatePath } from "next/cache";
 
-const addAudioFile = async (data: FormData) => {
-    'use server';
+export const validateAndUploadAudioFile = async (data: FormData) => {
+
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
 
@@ -25,7 +25,23 @@ const addAudioFile = async (data: FormData) => {
         return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
+    /**
+     * Defines the allowed file sizes in bytes.
+     * 
+     * Sizes:
+     * - small: 1 MB
+     * - medium: 5 MB
+     * - large: 10 MB
+     * - extraLarge: 20 MB
+     */
+    const allowedFileSizes = {
+        "small": 1 * 1024 * 1024,
+        "medium": 5 * 1024 * 1024,
+        "large": 10 * 1024 * 1024,
+        "extraLarge": 20 * 1024 * 1024,
+    }
+
+    if (file.size > allowedFileSizes.large) {
         console.error('The uploaded file is too large.');
         return;
     }
@@ -37,32 +53,16 @@ const addAudioFile = async (data: FormData) => {
             throw new Error('File upload failed, no URL returned');
         }
 
-        await prisma.file.create({
+        const createdFile = await prisma.file.create({
             data: {
                 name: file.name,
                 url: result.url,
-                userId: userId, // Make sure this is not undefined
+                userId: userId,
             }
         });
+        return createdFile; // Return the created file object
     } catch (error) {
         console.error(error);
-        // Handle your error here
+        throw error; // Rethrow the error to be handled by the caller
     }
-    revalidatePath('/');
 };
-
-
-export const FileUpload = async () => {
-
-    return (
-        <div>
-            <form action={addAudioFile}>
-                <input type="file" name="file" accept="audio/*"
-                    className="" />
-                <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Upload
-                </button>
-            </form>
-        </div>
-    )
-}

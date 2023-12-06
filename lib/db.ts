@@ -23,6 +23,7 @@ export type dataProps = {
 export type TranscribeProps = {
   id: number;
   text: string;
+  summary: string;
   createdAt: Date;
   updatedAt: Date;
   fileId: number;

@@ -3,53 +3,53 @@ import { FaGithub, FaTwitter, FaDiscord } from 'react-icons/fa';
 
 export default function Home() {
   return (
-     <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-gray-50">
       {/* Header Section */}
       <header className="container mx-auto px-6 py-12 flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">TranscribifyAI</h1>
+        <h1 className="text-3xl font-bold text-gray-800">AudioSummAI</h1>
         <LoginButton />
       </header>
 
       {/* Main Content Section */}
-      <main className="flex-grow">
-        <div className="flex flex-col justify-between h-full"> {/* Ensures header and footer remain at their respective ends */}
-          {/* Beta Notice + Hero Section */}
-          <div className="flex flex-col items-center justify-center flex-grow space-y-6"> {/* Centrally aligns Beta Notice and Hero Section */}
-            <div className="bg-white text-gray-600 py-2 px-4 border border-gray-300 rounded-full text-center">
-              <p className="text-sm font-semibold">
-                Sign up now and enjoy free access to our service for a limited time.
-              </p>
-            </div>
-            <h2 className="text-4xl font-bold text-gray-800">
-              AI-Powered Transcription Services
-            </h2>
-            <p className="text-gray-600">
-              Simplify your workflows with accurate transcriptions and translations.
+
+      <main className="flex flex-col items-center justify-center flex-grow"> {/* Center content vertically */}
+        {/* Beta Notice + Hero Section */}
+        <div className="flex flex-col items-center justify-center flex-grow space-y-6"> {/* Centrally aligns Beta Notice and Hero Section */}
+          <div className="bg-white text-gray-600 py-2 px-4 border border-gray-300 rounded-full text-center">
+            <p className="text-sm font-semibold">
+              Sign up now and enjoy free access to our service for a limited time.
             </p>
-            <HomePageLoginButton />
           </div>
+          <h2 className="text-4xl font-bold text-gray-800">
+            Transform Audio into Summaries Fast with AI
+          </h2>
+          <p className="text-gray-600">
+            Simplify Your Workflows with AI Transcription and Smart Summarization.
+          </p>
+          <HomePageLoginButton />
         </div>
       </main>
 
+
       {/* Footer Section */}
       <footer className="bg-gray-800 text-white py-10">
-  <div className="container mx-auto px-6 flex flex-wrap justify-between items-center">
-    {/* Icons Container */}
-    <div className="flex justify-center items-center space-x-4">
-      <a href="https://github.com/nyon3/TranscribifyAI" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-        <FaGithub size={24} />
-      </a>
-      <a href="https://discordapp.com/users/808692913289822218" target="_blank" rel="noopener noreferrer" aria-label="Discord">
-        <FaDiscord size={24} />
-      </a>
-      <a href="https://twitter.com/Tomo_anz" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-        <FaTwitter size={24} />
-      </a>
-    </div>
-    {/* Text Content */}
-    <p className='text-sm text-gray-300'>© 2023 Tomoya Anzai. Crafting digital experiences with passion.</p>
-  </div>
-</footer>
+        <div className="container mx-auto px-6 flex flex-wrap justify-between items-center">
+          {/* Icons Container */}
+          <div className="flex justify-center items-center space-x-4">
+            <a href="https://github.com/nyon3/TranscribifyAI" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+              <FaGithub size={24} />
+            </a>
+            <a href="https://discordapp.com/users/808692913289822218" target="_blank" rel="noopener noreferrer" aria-label="Discord">
+              <FaDiscord size={24} />
+            </a>
+            <a href="https://twitter.com/Tomo_anz" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+              <FaTwitter size={24} />
+            </a>
+          </div>
+          {/* Text Content */}
+          <p className='text-sm text-gray-300'>© 2023 Tomoya Anzai.</p>
+        </div>
+      </footer>
 
     </div>
   );
@@ -57,7 +57,7 @@ export default function Home() {
 
 
 
-   {/* Benefits Section */}
+{/* Benefits Section */ }
 //    <section className="bg-white py-8">
 //    <div className="container mx-auto px-6 space-y-6">
 //      <h3 className="text-center text-2xl font-bold text-gray-800">

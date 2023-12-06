@@ -7,7 +7,6 @@ import { ColumnDef } from "@tanstack/react-table"
 // You can use a Zod schema here if you want.
 export type AudioFile = {
   id: number
-  isTranscribed: boolean
   name: string
 }
 
@@ -15,10 +14,6 @@ export const columns: ColumnDef<AudioFile>[] = [
   {
     accessorKey: "name",
     header: "Name",
-  },
-  {
-    accessorKey: "isTranscribed",
-    header: "Transcribed?",
   },
 ]
 

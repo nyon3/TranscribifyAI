@@ -1,6 +1,17 @@
 'use client';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
+import { signOut } from "next-auth/react"
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
 
 interface CustomUser {
   name?: string | null;
@@ -19,19 +30,20 @@ function AuthStatus() {
   const user = session?.user as CustomUser; // Type assertion
 
   return (
-    <div className="flex items-center space-x-4 p-4 rounded max-w-lg mx-auto mt-8">
-      {user && user.image && (
-        <Image src={user.image} alt="User Avatar" width={100} height={100} className="w-16 h-16 rounded-full" />
-      )}
-
-      {user && user.id ? (
-        <div className="text-sm font-bold">Signed in as: {user.email}</div>
-      ) : (
-        <div className="flex flex-col items-start">
-          <div className="text-lg font-bold mb-2">No user ID available for</div>
-          <div className="text-sm text-gray-500">{user?.name}</div>
-        </div>
-      )}
+    // rectangle button with dropdown menu for user account styling with Tailwind CSS
+    <div>
+      <DropdownMenu>
+        <DropdownMenuTrigger className='flex items-center px-5 py-3 rounded hover:bg-gray-100'>
+          {user && user.image && (
+            <Image src={user.image} alt="User Avatar" width={50} height={50} className="w-16 h-16 rounded-full" />
+          )}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>Logout</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
