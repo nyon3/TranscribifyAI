@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { dataProps, dataPropsForComponent } from '@/lib/db';
 
-async function processTranscription(url: string, transcribedText: string) {
+async function updateTranscription(url: string, transcribedText: string) {
     const fileRecord = await prisma.file.findFirst({
         where: { url: url },
     });
@@ -38,6 +38,8 @@ async function processTranscription(url: string, transcribedText: string) {
     return fileRecord.id; // Optionally we can return the fileId for further use
 }
 
+
+
 export const transcribeAudio = async (data: dataProps | dataPropsForComponent, isTimestamped: boolean) => {
     const url = data.url;
     if (!url) {
@@ -71,8 +73,8 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
         };
     }
 
-    console.log("Sending request to:", apiEndpoint);
-    console.log("FormData Contents:", formData);
+    // console.log("Sending request to:", apiEndpoint);
+    // console.log("FormData Contents:", formData);
 
     const output = await fetch(apiEndpoint, {
         method: 'POST',
@@ -81,11 +83,12 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
     });
 
     // Process the response from the API
+    // TODO: Think about how to handle cold starts
     if (output.ok) {
         const transcribedText = isTimestamped ? await output.text() : (await output.json()).text;
-
+        console.log("Transcribed Text:", transcribedText);
         try {
-            await processTranscription(url, transcribedText);
+            await updateTranscription(url, transcribedText);
             revalidatePath('/');
             return {
                 success: true,

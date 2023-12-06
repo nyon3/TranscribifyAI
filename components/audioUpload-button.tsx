@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { handleAudioProcess } from '@/lib/hadleAudioProcess';
+import { handleAudioProcess } from '@/utils/hadleAudioProcess';
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -34,20 +34,25 @@ export default function AudioUploadButton() {
         setIsLoading(false); // Reset loading state when dialog closes
     };
 
+    // Assuming addAudioFile and transcribeAudio are imported at the top of your component file
+
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setIsLoading(true); // Set loading to true
         const formData = new FormData(event.currentTarget);
 
         try {
-            await handleAudioProcess(formData, isTimestamped);
+            const processingResult = await handleAudioProcess(formData, isTimestamped);
+            // Handle the successful processing result if needed
         } catch (error) {
             console.error("Error during audio processing:", error);
+            // Optionally handle specific error scenarios in the UI
         } finally {
             setIsLoading(false); // Reset loading state after processing
-            handleDialogClose();
+            handleDialogClose(); // Close dialog or reset UI state
         }
     };
+
 
     return (
         <div>

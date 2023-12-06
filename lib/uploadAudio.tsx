@@ -3,9 +3,8 @@ import prisma from "@/lib/prisma";
 import { put } from '@vercel/blob';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { revalidatePath } from "next/cache";
 
-export const addAudioFile = async (data: FormData) => {
+export const validateAndUploadAudioFile = async (data: FormData) => {
 
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
@@ -25,7 +24,16 @@ export const addAudioFile = async (data: FormData) => {
         console.error('The uploaded file is not an audio file.');
         return;
     }
-    // make a list of file max sizes
+
+    /**
+     * Defines the allowed file sizes in bytes.
+     * 
+     * Sizes:
+     * - small: 1 MB
+     * - medium: 5 MB
+     * - large: 10 MB
+     * - extraLarge: 20 MB
+     */
     const allowedFileSizes = {
         "small": 1 * 1024 * 1024,
         "medium": 5 * 1024 * 1024,
@@ -33,7 +41,7 @@ export const addAudioFile = async (data: FormData) => {
         "extraLarge": 20 * 1024 * 1024,
     }
 
-    if (file.size > allowedFileSizes.extraLarge) {
+    if (file.size > allowedFileSizes.large) {
         console.error('The uploaded file is too large.');
         return;
     }

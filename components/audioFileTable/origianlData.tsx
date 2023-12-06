@@ -3,7 +3,7 @@
 import { DataTable } from "./data-table";
 import { getUserData } from "@/lib/db";
 import { columns } from "./columns"
-import ResultDisplay from "@/components/resultArea/SummarizeDisplay";
+import ResultDisplay from "@/components/SummarizeDisplay";
 
 // const TranscriptionDisplay = dynamic(() => import('@/components/resultArea/TranscriptionDisplay'), {
 //   ssr: false,
