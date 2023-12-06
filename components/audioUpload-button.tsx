@@ -23,6 +23,7 @@ export default function AudioUploadButton() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isTimestamped, setIsTimestamped] = useState(false);
     const [isLoading, setIsLoading] = useState(false); // Loading state
+    const [error, setError] = useState<string | null>(null);
 
     const handleDialogOpen = (timestamped = false) => {
         setIsTimestamped(timestamped);
@@ -32,27 +33,30 @@ export default function AudioUploadButton() {
     const handleDialogClose = () => {
         setIsDialogOpen(false);
         setIsLoading(false); // Reset loading state when dialog closes
+        setError(null); // Reset error state when dialog closes
     };
 
-    // Assuming addAudioFile and transcribeAudio are imported at the top of your component file
 
+    // TODO: think about how to close the dialog after the file is uploaded
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        setIsLoading(true); // Set loading to true
+        setIsLoading(true);
+        setError(null);
         const formData = new FormData(event.currentTarget);
 
         try {
             const processingResult = await handleAudioProcess(formData, isTimestamped);
-            // Handle the successful processing result if needed
-        } catch (error) {
-            console.error("Error during audio processing:", error);
-            // Optionally handle specific error scenarios in the UI
+            // Handle success here if needed
+        } catch (e) {
+            console.error("Error during audio processing:", e);
+            // Ensure that 'e' is an instance of Error
+            const error = e instanceof Error ? e : new Error("An unknown error occurred");
+            setError(error.message);
         } finally {
-            setIsLoading(false); // Reset loading state after processing
-            handleDialogClose(); // Close dialog or reset UI state
+            setIsLoading(false);
+            // setIsDialogOpen(false);
         }
     };
-
 
     return (
         <div>
@@ -73,20 +77,26 @@ export default function AudioUploadButton() {
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Transcription Options</DialogTitle>
-                        <DialogDescription>
-                            Choose your transcription type.
+                        <div className="space-y-4"> {/* Use a div instead of DialogDescription */}
+                            <p>Select an audio file for transcription. Please note the following limitations:</p>
+                            <ul className="text-sm text-gray-600">
+                                <li>Maximum file size: 10MB</li>
+                                <li>Supported formats: MP3, WAV, FLAC</li>
+                                <li>Transcription accuracy may vary with audio quality</li>
+                            </ul>
                             <form onSubmit={handleSubmit}>
                                 <input type="file" name="file" accept="audio/*" className="" />
-                                <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                    {isLoading ? 'Uploading...' : 'Upload'} {/* Display loading text */}
+                                <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2">
+                                    {isLoading ? 'Uploading...' : 'Upload'}
                                 </button>
                             </form>
-                            {/* {isLoading && <p>Loading...</p>} */}
-                            {/* Optional: Display a loading spinner or message */}
-                        </DialogDescription>
+                        </div>
                     </DialogHeader>
+                    {error && <p className="text-red-500">{error}</p>}
                 </DialogContent>
             </Dialog>
+
+
         </div>
     );
 }

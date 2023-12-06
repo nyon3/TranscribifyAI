@@ -83,7 +83,7 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
     });
 
     // Process the response from the API
-    // TODO: Think about how to handle cold starts
+    // TODO: HOTFIX!! Think about how to handle cold starts
     if (output.ok) {
         const transcribedText = isTimestamped ? await output.text() : (await output.json()).text;
         console.log("Transcribed Text:", transcribedText);
