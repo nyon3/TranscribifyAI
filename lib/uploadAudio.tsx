@@ -43,7 +43,7 @@ export const validateAndUploadAudioFile = async (data: FormData) => {
 
     if (file.size > allowedFileSizes.large) {
         console.error('The uploaded file is too large.');
-        return;
+       return { success: false, message: 'File size exceeds the allowed limit.' };
     }
     try {
         const result = await put(file.name, file, { access: 'public' });
