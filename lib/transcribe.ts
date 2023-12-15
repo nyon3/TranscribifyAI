@@ -76,37 +76,57 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
     // console.log("Sending request to:", apiEndpoint);
     // console.log("FormData Contents:", formData);
 
-    const output = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: headers,
-        body: formData
-    });
+    const maxRetries = 5;
+    let retryCount = 0;
 
-    // Process the response from the API
-    // TODO: HOTFIX!! Think about how to handle cold starts
-    if (output.ok) {
-        const transcribedText = isTimestamped ? await output.text() : (await output.json()).text;
-        console.log("Transcribed Text:", transcribedText);
-        try {
-            await updateTranscription(url, transcribedText);
-            revalidatePath('/');
-            return {
-                success: true,
-                message: 'Transcription completed and database updated successfully.',
-            };
-        } catch (error) {
-            console.error(error);
-            return {
-                success: false,
-                message: 'Something went wrong',
-            };
+    while (retryCount < maxRetries) {
+        const output = await fetch(apiEndpoint, {
+            method: 'POST',
+            headers: headers,
+            body: formData
+        });
+        console.log("Response from API:", output);
+        if (output.status === 200) {
+            const transcribedText = isTimestamped ? await output.text() : (await output.json()).text;
+            console.log("Transcribed Text:", transcribedText);
+            try {
+                await updateTranscription(url, transcribedText);
+                revalidatePath('/');
+                return {
+                    success: true,
+                    message: 'Transcription completed and database updated successfully.',
+                };
+            } catch (error) {
+                console.error(error);
+                return {
+                    success: false,
+                    message: 'Something went wrong',
+                };
+            }
+            break;
+
+        } else if (output.status === 502) {
+            console.log("Bad Gateway. Retrying...");
+            retryCount++;
+            await new Promise(resolve => setTimeout(resolve, 60000)); // Wait for 60 seconds before retrying
         }
-    } else {
-        // Handle error response
-        console.error("Error from API:", await output.text());
-        return {
-            success: false,
-            message: 'Failed to transcribe audio file',
-        };
+        else if (output.status === 503) {
+            console.log("Service Unavailable. Retrying...");
+            retryCount++;
+            await new Promise(resolve => setTimeout(resolve, 60000)); // Wait for 60 seconds before retrying
+        } else if (output.status === 400 || output.status === 404) {
+            console.log("Client error:", await output.text());
+            break;
+        } else if (output.status === 500) {
+            console.log("Server error:", await output.text());
+            break;
+        } else {
+            console.log("Unexpected error:", await output.text());
+            break;
+        }
     }
+    return {
+        success: false,
+        message: 'Something went wrong',
+    };
 }
