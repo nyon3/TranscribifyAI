@@ -52,6 +52,9 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
     }
 
     const audioData = await response.blob();
+    if (!audioData) {
+        throw new Error('Failed to get the audio data from the response');
+    }
 
     const formData = new FormData();
     formData.append('file', audioData, 'audio');
@@ -66,10 +69,10 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
             'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
         };
     } else {
-        apiEndpoint = "https://n8r9bwi0f4azrcs5.us-east-1.aws.endpoints.huggingface.cloud";
+        apiEndpoint = "https://api-inference.huggingface.co/models/distil-whisper/distil-large-v2"
         headers = {
-            'Authorization': `Bearer ${process.env.HF_INFERENCE_API}`,
-            "Content-Type": "audio/flac",
+            'Authorization': `Bearer ${process.env.HF_ACCESS_TOKEN}`,
+
         };
     }
 
@@ -80,49 +83,61 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
     let retryCount = 0;
 
     while (retryCount < maxRetries) {
-        const output = await fetch(apiEndpoint, {
-            method: 'POST',
-            headers: headers,
-            body: formData
-        });
-        console.log("Response from API:", output);
-        if (output.status === 200) {
-            const transcribedText = isTimestamped ? await output.text() : (await output.json()).text;
-            console.log("Transcribed Text:", transcribedText);
-            try {
-                await updateTranscription(url, transcribedText);
-                revalidatePath('/');
-                return {
-                    success: true,
-                    message: 'Transcription completed and database updated successfully.',
-                };
-            } catch (error) {
-                console.error(error);
-                return {
-                    success: false,
-                    message: 'Something went wrong',
-                };
-            }
-            break;
+        try {
+            const output = await fetch(apiEndpoint, {
+                method: 'POST',
+                headers: headers,
+                body: formData
+            });
 
-        } else if (output.status === 502) {
-            console.log("Bad Gateway. Retrying...");
+            if (output.status === 200) {
+                const transcribedText = isTimestamped ? await output.text() : (await output.json()).text;
+                console.log("Transcribed Text:", transcribedText);
+                try {
+                    await updateTranscription(url, transcribedText);
+                    revalidatePath('/dashboard');
+                    return {
+                        success: true,
+                        message: 'Transcription completed and database updated successfully.',
+                    };
+                } catch (error) {
+                    console.error(error);
+                    return {
+                        success: false,
+                        message: 'Something went wrong',
+                    };
+                }
+                break;
+
+            } else if (output.status === 502) {
+                console.log("Bad Gateway. Retrying...");
+                retryCount++;
+                await new Promise(resolve => setTimeout(resolve, 60000)); // Wait for 60 seconds before retrying
+            }
+            else if (output.status === 503) {
+                console.log("Service Unavailable. Retrying...");
+                retryCount++;
+                await new Promise(resolve => setTimeout(resolve, 60000)); // Wait for 60 seconds before retrying
+            } else if (output.status === 400 || output.status === 404) {
+                console.log("Client error:", await output.text());
+                break;
+            } else if (output.status === 500) {
+                console.log("Server error:", await output.text());
+                break;
+            } else {
+                console.log("Unexpected error:", await output.text());
+                break;
+            }
+        } catch (error) {
+            console.error('Error during fetch:', error);
+
+            // Increment the retry count and continue with the next iteration of the loop
             retryCount++;
-            await new Promise(resolve => setTimeout(resolve, 60000)); // Wait for 60 seconds before retrying
-        }
-        else if (output.status === 503) {
-            console.log("Service Unavailable. Retrying...");
-            retryCount++;
-            await new Promise(resolve => setTimeout(resolve, 60000)); // Wait for 60 seconds before retrying
-        } else if (output.status === 400 || output.status === 404) {
-            console.log("Client error:", await output.text());
-            break;
-        } else if (output.status === 500) {
-            console.log("Server error:", await output.text());
-            break;
-        } else {
-            console.log("Unexpected error:", await output.text());
-            break;
+
+            // If we've reached the max number of retries, re-throw the error
+            if (retryCount >= maxRetries) {
+                throw error;
+            }
         }
     }
     return {

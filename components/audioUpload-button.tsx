@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { handleAudioProcess } from '@/utils/hadleAudioProcess';
+import { validateAndUploadAudioFile } from '@/lib/uploadAudio';
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -45,7 +45,8 @@ export default function AudioUploadButton() {
         const formData = new FormData(event.currentTarget);
 
         try {
-            const processingResult = await handleAudioProcess(formData, isTimestamped);
+            // const processingResult = await handleAudioProcess(formData, isTimestamped);
+            await validateAndUploadAudioFile(formData)
             // Handle success here if needed
         } catch (e) {
             console.error("Error during audio processing:", e);

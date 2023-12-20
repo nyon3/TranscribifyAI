@@ -3,6 +3,55 @@ import prisma from "@/lib/prisma";
 import { put } from '@vercel/blob';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { r2 } from '@/lib/awsConfig';
+import { Upload } from "@aws-sdk/lib-storage";
+import { transcribeAudio } from "./transcribe";
+import { revalidatePath } from 'next/cache';
+
+// TODO: Implement over-write function if the file already exists in the database
+async function createFileRecord(file: File, userId: string) {
+    try {
+        const fileUrl = `https://pub-c74350ef918c457cb4b75ea0ec66f266.r2.dev/${file.name}`;
+
+        // Check if a file with the same name already exists
+        const existingFile = await prisma.file.findFirst({
+            where: {
+                name: file.name,
+                userId: userId,
+            }
+        });
+
+        let createdFile;
+
+        if (existingFile) {
+            // If the file already exists, update the existing record
+            createdFile = await prisma.file.update({
+                where: {
+                    id: existingFile.id,
+                },
+                data: {
+                    url: fileUrl, // Update the URL in case the file content has changed
+                },
+            });
+            console.log('File record successfully updated with ID:', createdFile.id);
+        } else {
+            // If the file doesn't exist, create a new record
+            createdFile = await prisma.file.create({
+                data: {
+                    name: file.name,
+                    url: fileUrl,
+                    userId: userId,
+                }
+            });
+            console.log('File record successfully created with ID:', createdFile.id);
+        }
+
+        return createdFile;
+    } catch (error) {
+        console.error('Error creating or updating file record:', error);
+        throw error; // re-throw the error so it can be caught and handled by the calling function
+    }
+}
 
 export const validateAndUploadAudioFile = async (data: FormData) => {
 
@@ -43,26 +92,28 @@ export const validateAndUploadAudioFile = async (data: FormData) => {
 
     if (file.size > allowedFileSizes.large) {
         console.error('The uploaded file is too large.');
-       return { success: false, message: 'File size exceeds the allowed limit.' };
+        return { success: false, message: 'File size exceeds the allowed limit.' };
     }
     try {
-        const result = await put(file.name, file, { access: 'public' });
-
-        // Ensure that the result from 'put' is as expected
-        if (!result.url) {
-            throw new Error('File upload failed, no URL returned');
+        // TODO:Upload the file to the Blob Storage
+        // const result = await put(file.name, file, { access: 'public' });
+        const params = {
+            Bucket: process.env.R2_BUCKET_NAME,
+            Key: file.name,
+            Body: file,
         }
-
-        const createdFile = await prisma.file.create({
-            data: {
-                name: file.name,
-                url: result.url,
-                userId: userId,
-            }
+        const upload = new Upload({
+            client: r2,
+            params,
         });
-        return createdFile; // Return the created file object
+        await upload.done();
+        console.log("Successfully uploaded file to S3");
+
+        const createdFile = await createFileRecord(file, userId);
+        transcribeAudio(createdFile, false);
+        revalidatePath('/dashboard');
     } catch (error) {
-        console.error(error);
-        throw error; // Rethrow the error to be handled by the caller
+        console.error('Error uploading file:', error);
+        throw error;
     }
 };
