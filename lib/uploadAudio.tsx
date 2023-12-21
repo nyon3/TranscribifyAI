@@ -1,6 +1,5 @@
 'use server';
 import prisma from "@/lib/prisma";
-import { put } from '@vercel/blob';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { r2 } from '@/lib/awsConfig';
@@ -96,7 +95,6 @@ export const validateAndUploadAudioFile = async (data: FormData) => {
     }
     try {
         // TODO:Upload the file to the Blob Storage
-        // const result = await put(file.name, file, { access: 'public' });
         const params = {
             Bucket: process.env.R2_BUCKET_NAME,
             Key: file.name,
