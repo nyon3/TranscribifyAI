@@ -93,16 +93,32 @@ export const validateAndUploadAudioFile = async (data: FormData) => {
         return { success: false, message: 'File size exceeds the allowed limit.' };
     }
     try {
-        // TODO:Upload the file to the Blob Storage
+        // Check if the necessary environment variables are set
+        if (!process.env.R2_BUCKET_NAME) {
+            throw new Error('R2_BUCKET_NAME environment variable is not set.');
+        }
+
+        // Check if the file name is defined
+        if (!file.name) {
+            throw new Error('File name is not defined.');
+        }
+
+        // Check if the file itself is defined
+        if (!file) {
+            throw new Error('File is not defined.');
+        }
+
         const params = {
             Bucket: process.env.R2_BUCKET_NAME,
             Key: file.name,
             Body: file,
         }
+
         const upload = new Upload({
             client: r2,
             params,
         });
+
         await upload.done();
         console.log("Successfully uploaded file to S3");
 
