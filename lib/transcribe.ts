@@ -71,7 +71,7 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
     } else {
         apiEndpoint = "https://api-inference.huggingface.co/models/distil-whisper/distil-large-v2"
         headers = {
-            'Authorization': `Bearer ${process.env.HF_ACCESS_TOKEN}`,
+            'Authorization': `Bearer ${process.env.HF_INFERENCE_API}`,
 
         };
     }
