@@ -95,7 +95,7 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
                 console.log("Transcribed Text:", transcribedText);
                 try {
                     await updateTranscription(url, transcribedText);
-                    revalidatePath('/dashboard');
+                    revalidatePath('/');
                     return {
                         success: true,
                         message: 'Transcription completed and database updated successfully.',

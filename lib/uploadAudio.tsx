@@ -5,7 +5,6 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { r2 } from '@/lib/awsConfig';
 import { Upload } from "@aws-sdk/lib-storage";
 import { transcribeAudio } from "./transcribe";
-import { revalidatePath } from 'next/cache';
 
 // TODO: Implement over-write function if the file already exists in the database
 async function createFileRecord(file: File, userId: string) {
@@ -109,7 +108,6 @@ export const validateAndUploadAudioFile = async (data: FormData) => {
 
         const createdFile = await createFileRecord(file, userId);
         transcribeAudio(createdFile, false);
-        revalidatePath('/dashboard');
     } catch (error) {
         console.error('Error uploading file:', error);
         throw error;
