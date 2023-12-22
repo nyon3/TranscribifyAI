@@ -5,8 +5,8 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { r2 } from '@/lib/awsConfig';
 import { Upload } from "@aws-sdk/lib-storage";
 import { transcribeAudio } from "./transcribe";
+import { revalidatePath } from 'next/cache';
 
-// TODO: Implement over-write function if the file already exists in the database
 async function createFileRecord(file: File, userId: string) {
     try {
         const fileUrl = `https://pub-c74350ef918c457cb4b75ea0ec66f266.r2.dev/${file.name}`;
@@ -119,11 +119,14 @@ export const validateAndUploadAudioFile = async (data: FormData) => {
             params,
         });
 
+        // TODO: add loading functionality, check the sample code from the AWS documentation https://www.npmjs.com/package/@aws-sdk/lib-storage
+
         await upload.done();
         console.log("Successfully uploaded file to S3");
-
         const createdFile = await createFileRecord(file, userId);
+        // Timestamp function is false by default for demo purposes.
         transcribeAudio(createdFile, false);
+        revalidatePath('/');
     } catch (error) {
         console.error('Error uploading file:', error);
         throw error;

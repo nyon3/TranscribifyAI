@@ -55,7 +55,7 @@ export default function AudioUploadButton() {
             setError(error.message);
         } finally {
             setIsLoading(false);
-            // setIsDialogOpen(false);
+            setIsDialogOpen(false);
         }
     };
 

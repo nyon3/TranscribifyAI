@@ -39,7 +39,6 @@ async function updateTranscription(url: string, transcribedText: string) {
 }
 
 
-
 export const transcribeAudio = async (data: dataProps | dataPropsForComponent, isTimestamped: boolean) => {
     const url = data.url;
     if (!url) {
@@ -69,16 +68,14 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
             'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
         };
     } else {
-        apiEndpoint = "https://api-inference.huggingface.co/models/distil-whisper/distil-large-v2"
+        apiEndpoint = "https://n8r9bwi0f4azrcs5.us-east-1.aws.endpoints.huggingface.cloud"
         headers = {
             'Authorization': `Bearer ${process.env.HF_INFERENCE_API}`,
-
+            "Content-Type": "audio/flac",
         };
     }
 
-    // console.log("Sending request to:", apiEndpoint);
-    // console.log("FormData Contents:", formData);
-
+    // TODO: Add a loading indicator
     const maxRetries = 5;
     let retryCount = 0;
 
@@ -95,7 +92,7 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
                 console.log("Transcribed Text:", transcribedText);
                 try {
                     await updateTranscription(url, transcribedText);
-                    revalidatePath('/');
+
                     return {
                         success: true,
                         message: 'Transcription completed and database updated successfully.',
@@ -112,12 +109,12 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
             } else if (output.status === 502) {
                 console.log("Bad Gateway. Retrying...");
                 retryCount++;
-                await new Promise(resolve => setTimeout(resolve, 60000)); // Wait for 60 seconds before retrying
+                await new Promise(resolve => setTimeout(resolve, 30000)); // Wait for 60 seconds before retrying
             }
             else if (output.status === 503) {
                 console.log("Service Unavailable. Retrying...");
                 retryCount++;
-                await new Promise(resolve => setTimeout(resolve, 60000)); // Wait for 60 seconds before retrying
+                await new Promise(resolve => setTimeout(resolve, 30000)); // Wait for 60 seconds before retrying
             } else if (output.status === 400 || output.status === 404) {
                 console.log("Client error:", await output.text());
                 break;
@@ -140,8 +137,9 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
             }
         }
     }
-    return {
-        success: false,
-        message: 'Something went wrong',
-    };
+    revalidatePath('/dashboard');
+    // return {
+    //     success: false,
+    //     message: 'Something went wrong',
+    // };
 }
