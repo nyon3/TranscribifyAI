@@ -123,9 +123,9 @@ export const validateAndUploadAudioFile = async (data: FormData) => {
 
         await upload.done();
         console.log("Successfully uploaded file to S3");
-        const createdFile = await createFileRecord(file, userId);
+        // const createdFile = await createFileRecord(file, userId);
         // Timestamp function is false by default for demo purposes.
-        transcribeAudio(createdFile, false);
+        // transcribeAudio(createdFile, false);
         revalidatePath('/');
     } catch (error) {
         console.error('Error uploading file:', error);
