@@ -19,21 +19,23 @@ async function fetchFileRecord(url: string): Promise<File | null> {
 
 // Function to update the transcribed file
 async function updateTranscribedFile(fileId: number, transcribedText: string) {
-    const transcribedFile = await prisma.transcribedFile.findFirst({ where: { fileId: fileId } });
+    return await prisma.$transaction(async (prisma) => {
+        const transcribedFile = await prisma.transcribedFile.findFirst({ where: { fileId: fileId } });
 
-    if (transcribedFile) {
-        await prisma.transcribedFile.update({
-            where: { id: transcribedFile.id },
-            data: { text: transcribedText },
-        });
-    } else {
-        await prisma.transcribedFile.create({
-            data: {
-                text: transcribedText,
-                fileId: fileId,
-            },
-        });
-    }
+        if (transcribedFile) {
+            return await prisma.transcribedFile.update({
+                where: { id: transcribedFile.id },
+                data: { text: transcribedText },
+            });
+        } else {
+            return await prisma.transcribedFile.create({
+                data: {
+                    text: transcribedText,
+                    fileId: fileId,
+                },
+            });
+        }
+    });
 }
 
 // Function to fetch audio data from a URL
