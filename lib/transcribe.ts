@@ -1,19 +1,26 @@
 'use server'
 import prisma from '@/lib/prisma';
+import { File } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { dataProps, dataPropsForComponent } from '@/lib/db';
 
-async function updateTranscription(url: string, transcribedText: string) {
-    const fileRecord = await prisma.file.findFirst({
-        where: { url: url },
-    });
-
-    if (!fileRecord) {
-        throw new Error('File record not found');
+// Function to fetch the file record
+async function fetchFileRecord(url: string): Promise<File | null> {
+    try {
+        const fileRecord = await prisma.file.findFirst({
+            where: { url: url },
+        });
+        return fileRecord;
+    } catch (error) {
+        console.error('Error fetching file record:', error);
+        throw error;
     }
+}
 
+// Function to update the transcribed file
+async function updateTranscribedFile(fileId: number, transcribedText: string) {
     await prisma.$transaction(async (transPrisma) => {
-        const transcribedFile = await transPrisma.transcribedFile.findFirst({ where: { fileId: fileRecord.id } });
+        const transcribedFile = await transPrisma.transcribedFile.findFirst({ where: { fileId: fileId } });
 
         if (transcribedFile) {
             await transPrisma.transcribedFile.update({
@@ -24,27 +31,15 @@ async function updateTranscription(url: string, transcribedText: string) {
             await transPrisma.transcribedFile.create({
                 data: {
                     text: transcribedText,
-                    fileId: fileRecord.id,
+                    fileId: fileId,
                 },
             });
         }
-
-        await transPrisma.file.update({
-            where: { id: fileRecord.id },
-            data: { isTranscribed: true },
-        });
     });
-
-    return fileRecord.id; // Optionally we can return the fileId for further use
 }
 
-
-export const transcribeAudio = async (data: dataProps | dataPropsForComponent, isTimestamped: boolean) => {
-    const url = data.url;
-    if (!url) {
-        throw new Error('Missing URL');
-    }
-
+// Function to fetch audio data from a URL
+async function fetchAudioData(url: string) {
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error(`Failed to fetch the audio file from the URL: ${url}`);
@@ -55,6 +50,11 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
         throw new Error('Failed to get the audio data from the response');
     }
 
+    return audioData;
+}
+
+// Function to transcribe audio data
+async function transcribeAudioData(audioData: Blob, isTimestamped: boolean) {
     const formData = new FormData();
     formData.append('file', audioData, 'audio');
 
@@ -90,31 +90,20 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
             if (output.status === 200) {
                 const transcribedText = isTimestamped ? await output.text() : (await output.json()).text;
                 console.log("Transcribed Text:", transcribedText);
-                try {
-                    await updateTranscription(url, transcribedText);
+                return transcribedText;
+                // TODO: Add your logic for updating the database with the transcribed text
 
-                    return {
-                        success: true,
-                        message: 'Transcription completed and database updated successfully.',
-                    };
-                } catch (error) {
-                    console.error(error);
-                    return {
-                        success: false,
-                        message: 'Something went wrong',
-                    };
-                }
                 break;
 
             } else if (output.status === 502) {
                 console.log("Bad Gateway. Retrying...");
                 retryCount++;
-                await new Promise(resolve => setTimeout(resolve, 30000)); // Wait for 60 seconds before retrying
+                await new Promise(resolve => setTimeout(resolve, 30000)); // Wait for 30 seconds before retrying
             }
             else if (output.status === 503) {
                 console.log("Service Unavailable. Retrying...");
                 retryCount++;
-                await new Promise(resolve => setTimeout(resolve, 30000)); // Wait for 60 seconds before retrying
+                await new Promise(resolve => setTimeout(resolve, 30000)); // Wait for 30 seconds before retrying
             } else if (output.status === 400 || output.status === 404) {
                 console.log("Client error:", await output.text());
                 break;
@@ -126,20 +115,26 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
                 break;
             }
         } catch (error) {
-            console.error('Error during fetch:', error);
-
-            // Increment the retry count and continue with the next iteration of the loop
-            retryCount++;
-
-            // If we've reached the max number of retries, re-throw the error
-            if (retryCount >= maxRetries) {
-                throw error;
-            }
+            console.error('Error during transcription:', error);
+            throw error; // Re-throw the error so it can be handled by the caller
         }
     }
-    revalidatePath('/dashboard');
-    // return {
-    //     success: false,
-    //     message: 'Something went wrong',
-    // };
+}
+
+// Main function to transcribe audio
+export const transcribeAudio = async (data: dataProps | dataPropsForComponent, isTimestamped: boolean) => {
+    const url = data.url;
+    if (!url) {
+        throw new Error('Missing URL');
+    }
+
+    const audioData = await fetchAudioData(url);
+    const transcribedText = await transcribeAudioData(audioData, isTimestamped);
+
+    const fileRecord = await fetchFileRecord(url);
+    if (!fileRecord) {
+        throw new Error('File record not found');
+    }
+
+    await updateTranscribedFile(fileRecord.id, transcribedText);
 }
