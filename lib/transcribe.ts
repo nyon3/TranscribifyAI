@@ -84,10 +84,8 @@ async function transcribeAudioData(audioData: Blob, isTimestamped: boolean) {
         };
     }
 
-    // TODO: Add a loading indicator
     const maxRetries = 5;
     let retryCount = 0;
-
     while (retryCount < maxRetries) {
         try {
             const output = await fetch(apiEndpoint, {
@@ -95,23 +93,40 @@ async function transcribeAudioData(audioData: Blob, isTimestamped: boolean) {
                 headers: headers,
                 body: formData
             });
-
             if (output.status === 200) {
                 const transcribedText = isTimestamped ? await output.text() : (await output.json()).text;
+                console.log("Transcribed Text:", transcribedText);
                 return transcribedText;
-            } else {
+            } else if (output.status === 502 || output.status === 503) {
+                console.log("Bad Gateway. Retrying...");
                 retryCount++;
-                await new Promise(resolve => setTimeout(resolve, retryCount * 5000)); // Exponential backoff
+                await new Promise(resolve => setTimeout(resolve, 60000)); // Wait for 60 seconds before retrying
+            } else if (output.status === 400 || output.status === 404) {
+                console.log("Client error:", await output.text());
+                break;
+            } else if (output.status === 500) {
+                console.log("Server error:", await output.text());
+                break;
+            } else {
+                console.log("Unexpected error:", await output.text());
+                break;
             }
         } catch (error) {
-            console.error('Error during transcription:', error);
-            if (++retryCount >= maxRetries) throw error;
-            await new Promise(resolve => setTimeout(resolve, retryCount * 5000)); // Exponential backoff
+            console.error('Error during fetch:', error);
+            // Increment the retry count and continue with the next iteration of the loop
+            retryCount++;
+            // If we've reached the max number of retries, re-throw the error
+            if (retryCount >= maxRetries) {
+                throw error;
+            }
         }
     }
-
-    throw new Error('Transcription failed after maximum retries');
+    return {
+        success: false,
+        message: 'Something went wrong',
+    };
 }
+
 
 // Main function to transcribe audio
 export const transcribeAudio = async (data: dataProps | dataPropsForComponent, isTimestamped: boolean) => {
