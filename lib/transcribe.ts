@@ -18,31 +18,35 @@ async function fetchFileRecord(url: string): Promise<File | null> {
 }
 
 // Function to update the transcribed file
-async function updateTranscribedFile(fileId: number, transcribedText: string) {
-    try {
-        return await prisma.$transaction(async (prisma) => {
-            const transcribedFile = await prisma.transcribedFile.findFirst({ where: { fileId: fileId } });
-
-            if (transcribedFile) {
-                return await prisma.transcribedFile.update({
-                    where: { id: transcribedFile.id },
-                    data: { text: transcribedText },
-                });
-            } else {
-                return await prisma.transcribedFile.create({
-                    data: {
-                        text: transcribedText,
-                        fileId: fileId,
-                    },
-                });
-            }
-        });
-    } catch (error) {
-        console.error('Error updating transcribed file:', error);
-        throw error;
+async function updateTranscribedFile(url: string, transcribedText: string) {
+    const fileRecord = await prisma.file.findFirst({
+        where: { url: url },
+    });
+    if (!fileRecord) {
+        throw new Error('File record not found');
     }
+    await prisma.$transaction(async (transPrisma) => {
+        const transcribedFile = await transPrisma.transcribedFile.findFirst({ where: { fileId: fileRecord.id } });
+        if (transcribedFile) {
+            await transPrisma.transcribedFile.update({
+                where: { id: transcribedFile.id },
+                data: { text: transcribedText },
+            });
+        } else {
+            await transPrisma.transcribedFile.create({
+                data: {
+                    text: transcribedText,
+                    fileId: fileRecord.id,
+                },
+            });
+        }
+        await transPrisma.file.update({
+            where: { id: fileRecord.id },
+            data: { isTranscribed: true },
+        });
+    });
+    return fileRecord.id; // Optionally we can return the fileId for further use
 }
-
 
 // Function to fetch audio data from a URL
 async function fetchAudioData(url: string) {
@@ -125,7 +129,7 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
             throw new Error('File record not found');
         }
 
-        await updateTranscribedFile(fileRecord.id, transcribedText);
+        await updateTranscribedFile(url, transcribedText);
     } catch (error) {
         console.error('Error in transcribeAudio:', error);
         throw error;
