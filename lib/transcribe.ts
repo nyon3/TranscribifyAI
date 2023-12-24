@@ -77,7 +77,7 @@ async function transcribeAudioData(audioData: Blob, isTimestamped: boolean) {
             'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
         };
     } else {
-        apiEndpoint = "https://n8r9bwi0f4azrcs5.us-east-1.aws.endpoints.huggingface.cloud"
+        apiEndpoint = "https://api-inference.huggingface.co/models/distil-whisper/distil-large-v2"
         headers = {
             'Authorization': `Bearer ${process.env.HF_INFERENCE_API}`,
             "Content-Type": "audio/flac",
