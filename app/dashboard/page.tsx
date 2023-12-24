@@ -6,18 +6,6 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import Link from 'next/link';
 
 export default async function UserHome() {
-    // TODO: This function can be reusable, check the 'authStats.tsx' file.
-    const session = await getServerSession(authOptions);
-    if (!session) {
-        return (
-            // Center the content with Tailwind CSS
-            <div className="h-screen w-screen flex flex-col gap-3 justify-center items-center">
-                <h1 className='text-2xl'>Protected Page</h1>
-                <p>You can view this page because you are not signed in.</p>
-                <Link className="text-blue-500" href={'/'}>Go to Home</Link>
-            </div>
-        )
-    }
     return (
         <main className="flex flex-col max-h-screen">
             <div className="flex items-center">
