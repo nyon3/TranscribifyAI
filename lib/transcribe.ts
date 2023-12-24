@@ -18,7 +18,7 @@ async function fetchFileRecord(url: string): Promise<File | null> {
 }
 
 // Function to update the transcribed file
-async function updateTranscribedFile(url: string, transcribedText: string) {
+export async function updateTranscribedFile(url: string, transcribedText: string) {
     const fileRecord = await prisma.file.findFirst({
         where: { url: url },
     });
@@ -143,8 +143,8 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
         if (!fileRecord) {
             throw new Error('File record not found');
         }
-
-        await updateTranscribedFile(url, transcribedText);
+        return transcribedText;
+        // await updateTranscribedFile(url, transcribedText);
     } catch (error) {
         console.error('Error in transcribeAudio:', error);
         throw error;

@@ -6,6 +6,8 @@ import { r2 } from '@/lib/awsConfig';
 import { Upload } from "@aws-sdk/lib-storage";
 import { transcribeAudio } from "./transcribe";
 import { revalidatePath } from 'next/cache';
+import { updateTranscribedFile } from "./transcribe";
+import { url } from "inspector";
 
 // Function to create a file record
 async function createFileRecord(file: File, userId: string) {
@@ -109,7 +111,9 @@ export const processAndUploadAudio = async (data: FormData) => {
     await sendAudioToServer(file);
     const createdFile = await createFileRecord(file, userId);
     // Timestamp function is false by default for demo purposes.
-    transcribeAudio(createdFile, false);
+    await transcribeAudio(createdFile, false);
+    // FIXME: updateTranscribedFile: second argument should be a fetched data. expect that is working as I planned.
+    await updateTranscribedFile(createdFile.url, 'test');
     revalidatePath('/');
 }
 
