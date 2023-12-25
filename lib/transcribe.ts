@@ -62,7 +62,7 @@ export async function updateTranscribedFile(url: string, transcribedText: string
             }
 
             // Wait for a short delay before the next attempt
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 5000));
         }
     }
 
