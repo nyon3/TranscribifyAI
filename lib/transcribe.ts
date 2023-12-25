@@ -82,7 +82,6 @@ async function fetchAudioData(url: string) {
     }
 }
 
-// Function to transcribe audio data
 async function transcribeAudioData(audioData: Blob, isTimestamped: boolean) {
     const formData = new FormData();
     formData.append('file', audioData, 'audio');
@@ -97,15 +96,16 @@ async function transcribeAudioData(audioData: Blob, isTimestamped: boolean) {
             'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
         };
     } else {
-        apiEndpoint = "https://api-inference.huggingface.co/models/distil-whisper/distil-large-v2"
+        apiEndpoint = "https://api-inference.huggingface.co/models/distil-whisper/distil-large-v2";
         headers = {
             'Authorization': `Bearer ${process.env.HF_INFERENCE_API}`,
             "Content-Type": "audio/flac",
         };
     }
-
     const maxRetries = 5;
     let retryCount = 0;
+    let waitTime: number; // Explicitly declare waitTime as a number
+
     while (retryCount < maxRetries) {
         try {
             const output = await fetch(apiEndpoint, {
@@ -113,32 +113,30 @@ async function transcribeAudioData(audioData: Blob, isTimestamped: boolean) {
                 headers: headers,
                 body: formData
             });
+
             if (output.status === 200) {
                 const transcribedText = isTimestamped ? await output.text() : (await output.json()).text;
                 console.log("Transcribed Text:", transcribedText);
                 return transcribedText;
-            } else if (output.status === 502 || output.status === 503) {
-                console.log("Bad Gateway. Retrying...");
-                retryCount++;
-                await new Promise(resolve => setTimeout(resolve, 60000)); // Wait for 60 seconds before retrying
-            } else if (output.status === 400 || output.status === 404) {
-                console.log("Client error:", await output.text());
-                break;
-            } else if (output.status === 500) {
-                console.log("Server error:", await output.text());
-                break;
             } else {
-                console.log("Unexpected error:", await output.text());
-                break;
+                console.error(`Error with status code ${output.status}:`, await output.text());
+                retryCount++;
+                if (retryCount === 1) {
+                    waitTime = 30000; // Longer wait for the first retry
+                } else {
+                    waitTime = 5000 * Math.pow(1.5, retryCount - 1); // Shorter, gradually increasing intervals for subsequent retries
+                }
+                await new Promise(resolve => setTimeout(resolve, waitTime));
             }
         } catch (error) {
             console.error('Error during fetch:', error);
-            // Increment the retry count and continue with the next iteration of the loop
-            retryCount++;
-            // If we've reached the max number of retries, re-throw the error
-            if (retryCount >= maxRetries) {
-                throw error;
+            if (++retryCount >= maxRetries) throw error;
+            if (retryCount === 1) {
+                waitTime = 30000;
+            } else {
+                waitTime = 5000 * Math.pow(1.5, retryCount - 1);
             }
+            await new Promise(resolve => setTimeout(resolve, waitTime));
         }
     }
     return {
@@ -146,6 +144,7 @@ async function transcribeAudioData(audioData: Blob, isTimestamped: boolean) {
         message: 'Something went wrong',
     };
 }
+
 
 
 // Main function to transcribe audio
