@@ -113,8 +113,16 @@ export const processAndUploadAudio = async (data: FormData) => {
     // Timestamp function is false by default for demo purposes.
     await transcribeAudio(createdFile, false);
     // FIXME: updateTranscribedFile: second argument should be a fetched data. expect that is working as I planned.
-    await updateTranscribedFile(createdFile.url, 'test');
-    revalidatePath('/');
+    try {
+        // Try to update the transcribed file
+        await updateTranscribedFile(createdFile.url, 'test');
+        // If the update is successful, revalidate the path
+        revalidatePath('/');
+    } catch (error) {
+        // If an error occurs during the update, handle it here
+        console.error('Failed to update transcribed file:', error);
+        // You can also add additional error handling logic here if needed
+    }
 }
 
 
