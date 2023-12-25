@@ -19,7 +19,7 @@ async function fetchFileRecord(url: string): Promise<File | null> {
 
 // Function to update the transcribed file
 export async function updateTranscribedFile(url: string, transcribedText: string) {
-    const maxRetries = 3;
+    const maxRetries = 5;
     for (let i = 0; i < maxRetries; i++) {
         try {
             // Attempt to update the database
