@@ -68,7 +68,7 @@ export async function updateTranscribedFile(url: string, transcribedText: string
 
 }
 
-// Function to fetch audio data from a URL
+// TODO: add dynamic retry logic based on server status code.
 async function fetchAudioData(url: string) {
     try {
         const response = await fetch(url);
@@ -120,32 +120,23 @@ async function transcribeAudioData(audioData: Blob, isTimestamped: boolean) {
                 return transcribedText;
             } else {
                 console.error(`Error with status code ${output.status}:`, await output.text());
-                retryCount++;
-                if (retryCount === 1) {
-                    waitTime = 30000; // Longer wait for the first retry
-                } else {
-                    waitTime = 5000 * Math.pow(1.5, retryCount - 1); // Shorter, gradually increasing intervals for subsequent retries
-                }
-                await new Promise(resolve => setTimeout(resolve, waitTime));
             }
         } catch (error) {
             console.error('Error during fetch:', error);
-            if (++retryCount >= maxRetries) throw error;
-            if (retryCount === 1) {
-                waitTime = 30000;
-            } else {
-                waitTime = 5000 * Math.pow(1.5, retryCount - 1);
-            }
-            await new Promise(resolve => setTimeout(resolve, waitTime));
         }
+
+        // Increment retryCount and wait regardless of whether there was an error or the status was not 200
+        retryCount++;
+        if (retryCount === 1) {
+            waitTime = 30000; // Longer wait for the first retry
+        } else {
+            waitTime = 5000 * Math.pow(1.5, retryCount - 1); // Shorter, gradually increasing intervals for subsequent retries
+        }
+        await new Promise(resolve => setTimeout(resolve, waitTime));
     }
-    return {
-        success: false,
-        message: 'Something went wrong',
-    };
+
+    throw new Error('Max retries exceeded');
 }
-
-
 
 // Main function to transcribe audio
 export const transcribeAudio = async (data: dataProps | dataPropsForComponent, isTimestamped: boolean) => {
