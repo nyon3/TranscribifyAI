@@ -120,19 +120,19 @@ async function transcribeAudioData(audioData: Blob, isTimestamped: boolean) {
                 return transcribedText;
             } else {
                 console.error(`Error with status code ${output.status}:`, await output.text());
+                // Increment retryCount and calculate waitTime only when the request is unsuccessful
+                retryCount++;
+                waitTime = retryCount === 1 ? 30000 : 5000 * Math.pow(1.5, retryCount - 1); // Adjust waitTime
+                await new Promise(resolve => setTimeout(resolve, waitTime));
             }
         } catch (error) {
             console.error('Error during fetch:', error);
+            // Handle retry logic in case of an exception
+            retryCount++;
+            if (retryCount >= maxRetries) throw error; // If max retries reached, rethrow the error
+            waitTime = retryCount === 1 ? 30000 : 5000 * Math.pow(1.5, retryCount - 1);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
         }
-
-        // Increment retryCount and wait regardless of whether there was an error or the status was not 200
-        retryCount++;
-        if (retryCount === 1) {
-            waitTime = 30000; // Longer wait for the first retry
-        } else {
-            waitTime = 5000 * Math.pow(1.5, retryCount - 1); // Shorter, gradually increasing intervals for subsequent retries
-        }
-        await new Promise(resolve => setTimeout(resolve, waitTime));
     }
 
     throw new Error('Max retries exceeded');
