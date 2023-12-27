@@ -75,7 +75,7 @@ model TranscribedFile {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   text      String?   @db.Text
-  summary   String?   // Summary text
+  summary   String?   @db.Text
   fileId    Int       @unique // Ensure uniqueness
   file      File      @relation(fields: [fileId], references: [id])
 }
