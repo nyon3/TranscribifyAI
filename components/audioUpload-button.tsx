@@ -43,16 +43,12 @@ export default function AudioUploadButton() {
         setIsLoading(true);
         setError(null);
         const formData = new FormData(event.currentTarget);
-
         try {
             // const processingResult = await handleAudioProcess(formData, isTimestamped);
             await processAndUploadAudio(formData)
-            // Handle success here if needed
         } catch (e) {
             console.error("Error during audio processing:", e);
-            // Ensure that 'e' is an instance of Error
-            const error = e instanceof Error ? e : new Error("An unknown error occurred");
-            setError(error.message);
+            alert("An error occurred while processing your audio. Please try again.")
         } finally {
             setIsLoading(false);
             setIsDialogOpen(false);
@@ -93,7 +89,6 @@ export default function AudioUploadButton() {
                             </form>
                         </div>
                     </DialogHeader>
-                    {error && <p className="text-red-500">{error}</p>}
                 </DialogContent>
             </Dialog>
 
