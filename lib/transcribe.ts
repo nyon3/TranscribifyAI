@@ -83,26 +83,34 @@ async function fetchAudioData(url: string) {
 }
 
 async function transcribeAudioData(audioData: Blob, isTimestamped: boolean) {
-    const formData = new FormData();
-    formData.append('file', audioData, 'audio');
 
-    let apiEndpoint, headers;
-
+    let apiEndpoint, headers, model, response_format;
     if (isTimestamped) {
-        apiEndpoint = "https://api.openai.com/v1/audio/transcriptions";
-        formData.append("model", "whisper-1");
-        formData.append("response_format", "srt");
+        model = "whisper-1";
+        response_format = "srt";
+        apiEndpoint = `https://api.openai.com/v1/audio/transcriptions`;
         headers = {
-            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
         };
     } else {
-        apiEndpoint = "https://api-inference.huggingface.co/models/distil-whisper/distil-large-v2";
+        model = "distil-whisper/distil-large-v2"; // Model for when isTimestamped is false
+        response_format = "json"; // Response format for when isTimestamped is false
+        apiEndpoint = `https://api-inference.huggingface.co/models/distil-whisper/distil-large-v2`;
         headers = {
             'Authorization': `Bearer ${process.env.HF_INFERENCE_API}`,
             "Content-Type": "audio/flac",
         };
     }
-    const maxRetries = 5;
+
+    // Append model and response_format to the FormData
+    const formData = new FormData();
+    formData.append('file', audioData, 'audio.flac');
+    formData.append('model', model);
+    formData.append('response_format', response_format);
+
+    console.log('object formData:', formData)
+
+    const maxRetries = 3;
     let retryCount = 0;
     let waitTime: number; // Explicitly declare waitTime as a number
 

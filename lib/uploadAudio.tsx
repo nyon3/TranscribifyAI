@@ -111,9 +111,9 @@ export const processAndUploadAudio = async (data: FormData) => {
     await sendAudioToServer(file);
     const createdFile = await createFileRecord(file, userId);
     // Timestamp function is false by default for demo purposes.
-    await transcribeAudio(createdFile, false);
+    const transcribedText = await transcribeAudio(createdFile, true);
     // FIXME: updateTranscribedFile: second argument should be a fetched data. expect that is working as I planned.
-    await updateTranscribedFile(createdFile.url, 'OK');
+    await updateTranscribedFile(createdFile.url, transcribedText);
     revalidatePath('/');
 }
 
