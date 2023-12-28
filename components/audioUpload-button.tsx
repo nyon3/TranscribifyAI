@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { processAndUploadAudio } from '@/lib/uploadAudio';
+import { processAndUploadAudio } from '@/components/actions/uploadAudio';
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -58,16 +58,9 @@ export default function AudioUploadButton() {
     return (
         <div>
             <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button>Upload</Button>
+                <DropdownMenuTrigger >
+                    <Button onClick={() => handleDialogOpen(false)}>Upload</Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56">
-                    <DropdownMenuLabel>Select Transcription Type</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => handleDialogOpen(false)}>Transcription</DropdownMenuItem>
-                    {/* <DropdownMenuItem onClick={() => handleDialogOpen(true)}>Timestamped Transcription</DropdownMenuItem> */}
-                    <DropdownMenuItem className='text-gray-400'>Timestamped Text (Coming Soon)</DropdownMenuItem>
-                </DropdownMenuContent>
             </DropdownMenu>
 
             <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
@@ -91,8 +84,6 @@ export default function AudioUploadButton() {
                     </DialogHeader>
                 </DialogContent>
             </Dialog>
-
-
         </div>
     );
 }

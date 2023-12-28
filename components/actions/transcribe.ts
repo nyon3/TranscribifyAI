@@ -1,21 +1,7 @@
 'use server'
 import prisma from '@/lib/prisma';
-import { File } from '@prisma/client';
-import { revalidatePath } from 'next/cache';
 import { dataProps, dataPropsForComponent } from '@/lib/db';
 
-// Function to fetch the file record
-async function fetchFileRecord(url: string): Promise<File | null> {
-    try {
-        const fileRecord = await prisma.file.findFirst({
-            where: { url: url },
-        });
-        return fileRecord;
-    } catch (error) {
-        console.error('Error fetching file record:', error);
-        throw error;
-    }
-}
 
 // Function to update the transcribed file
 export async function updateTranscribedFile(url: string, transcribedText: string) {
@@ -44,10 +30,6 @@ export async function updateTranscribedFile(url: string, transcribedText: string
                         },
                     });
                 }
-                // await transPrisma.file.update({
-                //     where: { id: fileRecord.id },
-                //     data: { isTranscribed: true },
-                // });
             });
 
             // If the update was successful, return immediately
@@ -84,22 +66,11 @@ async function fetchAudioData(url: string) {
 
 async function transcribeAudioData(audioData: Blob, isTimestamped: boolean) {
 
-    let apiEndpoint, headers, model, response_format;
-    if (isTimestamped) {
-        model = "whisper-1";
-        response_format = "srt";
-        apiEndpoint = `https://api.openai.com/v1/audio/transcriptions`;
-        headers = {
-            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-        };
-    } else {
-        model = "distil-whisper/distil-large-v2"; // Model for when isTimestamped is false
-        response_format = "json"; // Response format for when isTimestamped is false
-        apiEndpoint = `https://api-inference.huggingface.co/models/distil-whisper/distil-large-v2`;
-        headers = {
-            'Authorization': `Bearer ${process.env.HF_INFERENCE_API}`,
-            "Content-Type": "audio/flac",
-        };
+    const model = "whisper-1";
+    const response_format = "srt";
+    const apiEndpoint = `https://api.openai.com/v1/audio/transcriptions`;
+    const headers = {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
     }
 
     // Append model and response_format to the FormData
@@ -108,11 +79,9 @@ async function transcribeAudioData(audioData: Blob, isTimestamped: boolean) {
     formData.append('model', model);
     formData.append('response_format', response_format);
 
-    console.log('object formData:', formData)
-
     const maxRetries = 3;
     let retryCount = 0;
-    let waitTime: number; // Explicitly declare waitTime as a number
+    let waitTime: number;
 
     while (retryCount < maxRetries) {
         try {
@@ -157,10 +126,6 @@ export const transcribeAudio = async (data: dataProps | dataPropsForComponent, i
         const audioData = await fetchAudioData(url);
         const transcribedText = await transcribeAudioData(audioData, isTimestamped);
 
-        // const fileRecord = await fetchFileRecord(url);
-        // if (!fileRecord) {
-        //     throw new Error('File record not found');
-        // }
         return transcribedText;
         // await updateTranscribedFile(url, transcribedText);
     } catch (error) {

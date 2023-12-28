@@ -16,8 +16,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { deleteFile } from "@/lib/delete"
-import { summarizingTranscribedAudioData } from "@/lib/summarize"
+import { deleteFile } from "@/components/actions/delete"
+import { summarizingTranscribedAudioData } from "@/components/actions/summarize"
 import { dataPropsForComponent } from "@/lib/db"
 import { FileContext } from '@/components/context/FileIdContext';
 
