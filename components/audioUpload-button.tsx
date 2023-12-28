@@ -59,7 +59,7 @@ export default function AudioUploadButton() {
         <div>
             <DropdownMenu>
                 <DropdownMenuTrigger >
-                    <Button onClick={() => handleDialogOpen(false)}>Upload</Button>
+                    <span onClick={() => handleDialogOpen(false)}>Upload</span>
                 </DropdownMenuTrigger>
             </DropdownMenu>
 
