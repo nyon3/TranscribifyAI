@@ -34,8 +34,8 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user }) {
       if ((user as any).email === 'tomoya@crosstalk.me') {
         (user as any).isAdmin = true;
+        console.log('you signed in as admin user');
       }
-      console.log('you signed in as admin user');
       return true;
     }
   },
