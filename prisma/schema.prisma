@@ -48,7 +48,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   files         File[]  
-  isAdmin        Boolean         @default(false)
+  isAdmin       Boolean   @default(false)
 }
 
 model VerificationToken {
