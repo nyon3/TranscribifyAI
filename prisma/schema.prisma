@@ -49,6 +49,7 @@ model User {
   sessions      Session[]
   files         File[]  
   isAdmin       Boolean   @default(false)
+  apiRequestCount Int     @default(0)
 }
 
 model VerificationToken {
