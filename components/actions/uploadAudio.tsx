@@ -93,13 +93,18 @@ async function sendAudioToServer(file: File) {
 export const processAndUploadAudio = async (data: FormData) => {
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
+    const file = data.get('file') as File;
+    const apiRequestCount = (session?.user as any)?.apiRequestCount;
 
     // Check if the userId exists
     if (!userId) {
         throw new Error('No user id found in session');
     }
 
-    const file = data.get('file') as File;
+    // Check API request count
+    if (apiRequestCount == 1) {
+        throw new Error('API request limit exceeded');
+    }
 
     // Check if the file object is defined
     if (!file) {
