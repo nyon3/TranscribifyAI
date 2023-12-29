@@ -48,7 +48,7 @@ export default function AudioUploadButton() {
             await processAndUploadAudio(formData)
         } catch (e) {
             console.error("Error during audio processing:", e);
-            alert("An error occurred while processing your audio. Please try again.")
+            alert(e || "An error occurred during audio processing.")
         } finally {
             setIsLoading(false);
             setIsDialogOpen(false);

@@ -29,13 +29,16 @@ export const authOptions: NextAuthOptions = {
       if (session && session.user && user) {
         (session.user as any).id = user.id;
         (session.user as any).apiRequestCount = (user as any).apiRequestCount;
+        (session.user as any).isAdmin = (user as any).isAdmin;
       }
       return session;
     },
     async signIn({ user }) {
       if ((user as any).email === 'tomoya@crosstalk.me') {
-        (user as any).isAdmin = true;
-        console.log('you signed in as admin user');
+        await prisma.user.update({
+          where: { email: 'tomoya@crosstalk.me' },
+          data: { isAdmin: true },
+        });
       }
       return true;
     }

@@ -95,6 +95,7 @@ export const processAndUploadAudio = async (data: FormData) => {
     const userId = (session?.user as any)?.id;
     const file = data.get('file') as File;
     const apiRequestCount = (session?.user as any).apiRequestCount;
+    const isAdmin = (session?.user as any).isAdmin;
 
     console.log('api request count', apiRequestCount);
 
@@ -103,8 +104,8 @@ export const processAndUploadAudio = async (data: FormData) => {
         throw new Error('No user id found in session');
     }
 
-    // Check API request count
-    if (apiRequestCount === 0) {
+    // Check API request count if user is not an admin
+    if (!isAdmin && apiRequestCount > 3) {
         throw new Error('API request limit exceeded');
     }
 
@@ -114,7 +115,7 @@ export const processAndUploadAudio = async (data: FormData) => {
         data: { apiRequestCount: { increment: 1 } },
     });
 
-    // Check if the file object is defined
+    // Check if the file object is definedd
     if (!file) {
         throw new Error('No file found in form data.');
     }
