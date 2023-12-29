@@ -94,7 +94,9 @@ export const processAndUploadAudio = async (data: FormData) => {
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id;
     const file = data.get('file') as File;
-    const apiRequestCount = (session?.user as any)?.apiRequestCount;
+    const apiRequestCount = (session?.user as any).apiRequestCount;
+
+    console.log('api request count', apiRequestCount);
 
     // Check if the userId exists
     if (!userId) {
@@ -102,9 +104,15 @@ export const processAndUploadAudio = async (data: FormData) => {
     }
 
     // Check API request count
-    if (apiRequestCount == 1) {
+    if (apiRequestCount === 0) {
         throw new Error('API request limit exceeded');
     }
+
+    // Increment API request count
+    await prisma.user.update({
+        where: { id: userId },
+        data: { apiRequestCount: { increment: 1 } },
+    });
 
     // Check if the file object is defined
     if (!file) {

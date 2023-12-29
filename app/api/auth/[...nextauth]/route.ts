@@ -28,6 +28,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, user }) {
       if (session && session.user && user) {
         (session.user as any).id = user.id;
+        (session.user as any).apiRequestCount = (user as any).apiRequestCount;
       }
       return session;
     },
