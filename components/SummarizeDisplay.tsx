@@ -10,8 +10,9 @@ import {
     TooltipTrigger,
     TooltipProvider,
 } from "@/components/ui/tooltip"
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Download } from 'lucide-react';
 import { useState, useCallback } from 'react';
+import { downloadTextFile } from '@/components/actions/downloadUtils';
 
 const ResultDisplay = () => {
     const { text: transcriptionText, state: summaryText, isLoading } = useContext(FileContext);
@@ -31,15 +32,32 @@ const ResultDisplay = () => {
             });
     }, [summaryText]);
 
+    const downloadSrtFromDB = useCallback(() => {
+        downloadTextFile(transcriptionText, "transcription.srt");
+    }, [transcriptionText]);
+
 
     const renderTextarea = (placeholder: string, value: string) => (
         // height is slightly smaller than screen size
-        <Textarea
-            className="h-full"
-            placeholder={placeholder}
-            value={value || ''}
-            readOnly
-        />
+        <div className="flex flex-col items-end gap-2 w-full">
+            <Textarea
+                className="h-full"
+                placeholder={placeholder}
+                value={value || ''}
+                readOnly
+            />
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button onClick={downloadSrtFromDB} variant="ghost" size="icon" >
+                            {isCopied ? <Check className="h-4 w-4" /> : <Download className="h-4 w-4" />}
+                            <span className="sr-only">Download</span>
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Download</TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        </div>
     );
 
     const renderSummaryTextarea = (placeholder: string, value: string) => (
