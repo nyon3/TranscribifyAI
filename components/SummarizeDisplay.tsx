@@ -32,6 +32,7 @@ const ResultDisplay = () => {
         );
     }, [summaryText]);
 
+    // FIXME: if text is empty, download button should be disabled
     const downloadSrtFromDB = useCallback(() => {
         downloadTextFile(transcriptionText, "transcription.srt");
     }, [transcriptionText]);
