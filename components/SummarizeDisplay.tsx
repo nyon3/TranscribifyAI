@@ -12,24 +12,24 @@ import {
 } from "@/components/ui/tooltip"
 import { Copy, Check, Download } from 'lucide-react';
 import { useState, useCallback } from 'react';
-import { downloadTextFile } from '@/components/actions/downloadUtils';
+import { downloadTextFile, copyToClipboard } from '@/components/actions/helperFunctions';
 
 const ResultDisplay = () => {
     const { text: transcriptionText, state: summaryText, isLoading } = useContext(FileContext);
     const [isCopied, setIsCopied] = useState(false);
 
-    const copyToClipboard = useCallback(() => {
-        navigator.clipboard.writeText(summaryText || '')
-            .then(() => {
-                console.log('Text copied to clipboard');
-                setIsCopied(true)
+    // FIXME: animation should work on 'handleCopy' only but it doesn't
+    const handleCopy = useCallback(() => {
+        copyToClipboard(
+            summaryText,
+            () => {
+                setIsCopied(true);
                 setTimeout(() => {
-                    setIsCopied(false)
-                }, 2000)
-            })
-            .catch(err => {
-                console.error('Could not copy text: ', err);
-            });
+                    setIsCopied(false);
+                }, 2000);
+            },
+            (err) => console.error('Could not copy text: ', err)
+        );
     }, [summaryText]);
 
     const downloadSrtFromDB = useCallback(() => {
@@ -72,7 +72,7 @@ const ResultDisplay = () => {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button onClick={copyToClipboard} variant="ghost" size="icon" >
+                            <Button onClick={handleCopy} variant="ghost" size="icon" >
                                 {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                                 <span className="sr-only">Copy</span>
                             </Button>
