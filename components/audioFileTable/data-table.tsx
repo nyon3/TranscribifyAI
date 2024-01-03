@@ -59,6 +59,31 @@ export function DataTable<TData, TValue>({
     setLoading(false);
   }
 
+  const handleDownload = async (fileData: dataPropsForComponent) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/download?id=${fileData.name}`, {
+        method: 'GET',
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const blob = await response.blob();
+      const downloadUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = fileData.name;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(downloadUrl);
+      a.remove();
+    } catch (error) {
+      console.error('Error during fetch:', error);
+    }
+    setLoading(false);
+  };
+
+
   return (
     <div className="rounded-md border">
       <Table className='w-80 h-full'>
@@ -112,6 +137,9 @@ export function DataTable<TData, TValue>({
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleSummarize(rowData)}>
                           Summarize
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDownload(rowData)}>
+                          Download
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
