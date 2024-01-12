@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { handleAudioProcess } from '@/utils/hadleAudioProcess';
+import { processAndUploadAudio } from '@/components/actions/uploadAudio';
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -43,34 +43,24 @@ export default function AudioUploadButton() {
         setIsLoading(true);
         setError(null);
         const formData = new FormData(event.currentTarget);
-
         try {
-            const processingResult = await handleAudioProcess(formData, isTimestamped);
-            // Handle success here if needed
+            // const processingResult = await handleAudioProcess(formData, isTimestamped);
+            await processAndUploadAudio(formData)
         } catch (e) {
             console.error("Error during audio processing:", e);
-            // Ensure that 'e' is an instance of Error
-            const error = e instanceof Error ? e : new Error("An unknown error occurred");
-            setError(error.message);
+            alert(e || "An error occurred during audio processing.")
         } finally {
             setIsLoading(false);
-            // setIsDialogOpen(false);
+            setIsDialogOpen(false);
         }
     };
 
     return (
         <div>
             <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button>Upload</Button>
+                <DropdownMenuTrigger >
+                    <span onClick={() => handleDialogOpen(false)}>Upload</span>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56">
-                    <DropdownMenuLabel>Select Transcription Type</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => handleDialogOpen(false)}>Transcription</DropdownMenuItem>
-                    {/* <DropdownMenuItem onClick={() => handleDialogOpen(true)}>Timestamped Transcription</DropdownMenuItem> */}
-                    <DropdownMenuItem className='text-gray-400'>Timestamped Text (Coming Soon)</DropdownMenuItem>
-                </DropdownMenuContent>
             </DropdownMenu>
 
             <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
@@ -92,11 +82,8 @@ export default function AudioUploadButton() {
                             </form>
                         </div>
                     </DialogHeader>
-                    {error && <p className="text-red-500">{error}</p>}
                 </DialogContent>
             </Dialog>
-
-
         </div>
     );
 }

@@ -16,8 +16,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { deleteFile } from "@/lib/delete"
-import { summarizingTranscribedAudioData } from "@/lib/summarize"
+import { deleteFile } from "@/components/actions/delete"
+import { summarizingTranscribedAudioData } from "@/components/actions/summarize"
 import { dataPropsForComponent } from "@/lib/db"
 import { FileContext } from '@/components/context/FileIdContext';
 
@@ -58,6 +58,31 @@ export function DataTable<TData, TValue>({
     await summarizingTranscribedAudioData(fileData); // Wait for the summarizing process to complete
     setLoading(false);
   }
+
+  const handleDownload = async (fileData: dataPropsForComponent) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/download?id=${fileData.name}`, {
+        method: 'GET',
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const blob = await response.blob();
+      const downloadUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = fileData.name;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(downloadUrl);
+      a.remove();
+    } catch (error) {
+      console.error('Error during fetch:', error);
+    }
+    setLoading(false);
+  };
+
 
   return (
     <div className="rounded-md border">
@@ -112,6 +137,9 @@ export function DataTable<TData, TValue>({
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleSummarize(rowData)}>
                           Summarize
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDownload(rowData)}>
+                          Download
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

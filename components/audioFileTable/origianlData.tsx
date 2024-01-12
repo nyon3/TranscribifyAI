@@ -5,9 +5,6 @@ import { getUserData } from "@/lib/db";
 import { columns } from "./columns"
 import ResultDisplay from "@/components/SummarizeDisplay";
 
-// const TranscriptionDisplay = dynamic(() => import('@/components/resultArea/TranscriptionDisplay'), {
-//   ssr: false,
-// });
 
 export async function OriginalData() {
   const files = await getUserData();

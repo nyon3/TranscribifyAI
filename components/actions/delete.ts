@@ -2,6 +2,22 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { dataProps, dataPropsForComponent } from '@/lib/db';
+import { DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { r2 } from "@/lib/awsConfig";
+
+export const deleteObjectFromR2 = async (fileName: string) => {
+    const command = new DeleteObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME,
+        Key: fileName,
+    });
+
+    try {
+        const response = await r2.send(command);
+        console.log(response);
+    } catch (err) {
+        console.error(err);
+    }
+};
 
 
 export const deleteFile = async (data: dataProps | dataPropsForComponent) => {
@@ -16,6 +32,10 @@ export const deleteFile = async (data: dataProps | dataPropsForComponent) => {
                 transcribedFiles: true // Include related transcribedFiles in the result
             }
         });
+        // FIXME: Delete the file from R2
+        console.log(data.url)
+        await deleteObjectFromR2(data.name)
+
         if (file) {
             // Begin a transaction to ensure both deletions succeed or fail together
             await prisma.$transaction(async (prisma) => {
@@ -34,6 +54,7 @@ export const deleteFile = async (data: dataProps | dataPropsForComponent) => {
                     }
                 });
             });
+            // FIXME: after deleting the file from R2, reset the state for text areas
             console.log('File and related transcribed files deleted successfully.');
         } else {
             console.log('File not found');
