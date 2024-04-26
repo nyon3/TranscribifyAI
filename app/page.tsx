@@ -1,6 +1,6 @@
 import { LoginButton, HomePageLoginButton } from '../components/loginButton';
 import { FaGithub, FaTwitter, FaDiscord } from 'react-icons/fa';
-
+import Link from 'next/link';
 export default function Home() {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -27,6 +27,7 @@ export default function Home() {
             Simplify Your Workflows with AI Transcription and Smart Summarization.
           </p>
           <HomePageLoginButton />
+          <Link href={'/dashboard'}>Create Summaries</Link>
         </div>
       </main>
 
